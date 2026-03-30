@@ -37,6 +37,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Generate Prisma client
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nestjs_fastify_api_boilerplate?schema=public
+        run: pnpm prisma:generate
+
       - name: Lint
         run: pnpm lint
 
