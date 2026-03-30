@@ -1,0 +1,14 @@
+# Build and dependencies
+node_modules
+dist
+coverage
+.tmp
+
+# Prisma artifacts not handled by Prettier out of the box
+src/modules/database/prisma/migrations/**
+src/modules/database/prisma/models/**/*.prisma
+src/modules/database/prisma/schema.prisma
+
+# Non-supported formats in this repo
+*.sql
+*.toml

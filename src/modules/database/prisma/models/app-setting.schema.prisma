@@ -1,0 +1,10 @@
+model AppSetting {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  key       String   @unique @db.VarChar(100)
+  value     Json
+  isSystem  Boolean  @default(false) @map("is_system")
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+
+  @@index([key])
+  @@map("app_settings")
+}

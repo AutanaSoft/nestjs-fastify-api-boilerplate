@@ -1,0 +1,92 @@
+name: '🐛 Bug report'
+description: Report a reproducible problem in the API behavior.
+labels: ['type:bug', 'status:triage']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report this.
+        Please provide a minimal, reproducible case so we can fix it quickly.
+
+  - type: textarea
+    id: bug-summary
+    attributes:
+      label: '📋 Summary'
+      description: What happened and what did you expect?
+      placeholder: 'When calling POST /v1/users, API returns 500 instead of 400 for invalid payload.'
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: '🧪 Steps to reproduce'
+      description: Provide exact steps and payloads.
+      placeholder: |
+        1. Run `pnpm start:dev`
+        2. Send request:
+           curl -X POST ...
+        3. Observe response...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: '✅ Expected behavior'
+      placeholder: 'API should return 400 with validation error details.'
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: '❌ Actual behavior'
+      placeholder: 'API returns 500 and generic internal error message.'
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: '🧾 Relevant logs / screenshots'
+      description: Paste logs, traces, or screenshots if available.
+      render: shell
+
+  - type: dropdown
+    id: environment-os
+    attributes:
+      label: '💻 OS'
+      options:
+        - Linux
+        - macOS
+        - Windows
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: environment-node
+    attributes:
+      label: '🟢 Node.js version'
+      placeholder: 'v22.19.0'
+    validations:
+      required: true
+
+  - type: input
+    id: environment-pnpm
+    attributes:
+      label: '📦 pnpm version'
+      placeholder: '10.x'
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: '🧭 Checklist'
+      options:
+        - label: I searched existing issues and did not find a duplicate.
+          required: true
+        - label: I can reproduce this on the latest default branch.
+          required: true

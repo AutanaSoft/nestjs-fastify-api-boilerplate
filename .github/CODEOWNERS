@@ -1,0 +1,14 @@
+# Global fallback owners (repository owner account)
+* @AutanaSoft
+
+# Application modules
+/src/modules/** @AutanaSoft
+
+# Tests
+/test/** @AutanaSoft
+
+# CI and repository governance
+/.github/workflows/** @AutanaSoft
+/.github/ISSUE_TEMPLATE/** @AutanaSoft
+/.github/CODEOWNERS @AutanaSoft
+/.github/dependabot.yml @AutanaSoft

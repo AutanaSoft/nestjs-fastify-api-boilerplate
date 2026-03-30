@@ -1,0 +1,3 @@
+interface:
+  display_name: 'Create E2E Test Suite'
+  short_description: 'Create real E2E tests with canonical contracts'

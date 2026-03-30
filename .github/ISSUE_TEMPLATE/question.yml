@@ -1,0 +1,26 @@
+name: '❓ Question'
+description: Ask for usage guidance or clarification.
+labels: ['type:question', 'status:triage']
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: '💬 Question'
+      description: What do you need help with?
+      placeholder: 'How should I structure a new feature module following project conventions?'
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: '📚 Context'
+      description: Share code snippets, links, or constraints.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: '🧭 Checklist'
+      options:
+        - label: I reviewed README and project docs first.
+          required: true

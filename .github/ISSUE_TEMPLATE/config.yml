@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📚 Documentation
+    url: https://github.com/AutanaSoft/nestjs-fastify-api-boilerplate#readme
+    about: Read setup and usage docs before opening a new issue.
+  - name: 💬 Discussions
+    url: https://github.com/AutanaSoft/nestjs-fastify-api-boilerplate/discussions
+    about: Ask questions and share ideas with the community.
+  - name: 🔒 Security Reports
+    url: https://github.com/AutanaSoft/nestjs-fastify-api-boilerplate/security/advisories/new
+    about: Report sensitive security issues privately.

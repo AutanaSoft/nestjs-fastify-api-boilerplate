@@ -1,0 +1,66 @@
+name: '✨ Feature request'
+description: Propose an enhancement to the API.
+labels: ['type:feature', 'status:triage']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Proposals with clear problem statements and acceptance criteria are reviewed faster.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: '🎯 Problem statement'
+      description: What problem are you trying to solve?
+      placeholder: 'Current endpoint does not support filtering users by status...'
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: '🛠️ Proposed solution'
+      description: Describe API shape, behavior, and examples.
+      placeholder: |
+        Add query param `status` to GET /v1/users.
+        Example: GET /v1/users?status=active
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: '🔄 Alternatives considered'
+      description: What alternatives did you evaluate?
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: '✅ Acceptance criteria'
+      placeholder: |
+        - Endpoint supports `status` filter.
+        - Invalid status returns 400 with clear message.
+        - Unit and E2E tests included.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: '📈 Expected impact'
+      options:
+        - High
+        - Medium
+        - Low
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: '🧭 Checklist'
+      options:
+        - label: I checked existing issues and discussions.
+          required: true
+        - label: This proposal aligns with the current API goals.
+          required: true

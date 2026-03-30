@@ -1,0 +1,4 @@
+echo "Running pre-push checks (lint, format, build, test)..."
+
+pnpm build
+pnpm test

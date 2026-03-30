@@ -1,0 +1,36 @@
+// Enums para User
+enum UserRole {
+  ADMIN
+  USER
+  GUEST
+
+  @@map("user_role")
+}
+
+enum UserStatus {
+  REGISTERED
+  ACTIVE
+  BANNED
+  PENDING_PAYMENT
+  PAYMENT_FROZEN
+  FROZEN
+
+  @@map("user_status")
+}
+
+model UserDbEntity {
+  id              String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userName        String     @unique @map("user_name")
+  email           String     @unique
+  password        String
+  role            UserRole   @default(USER)
+  status          UserStatus @default(REGISTERED)
+  emailVerifiedAt DateTime?  @map("email_verified_at") @db.Timestamptz()
+  createdAt       DateTime   @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt       DateTime   @updatedAt @map("updated_at") @db.Timestamptz()
+
+  @@index([email])
+  @@index([userName])
+  @@index([emailVerifiedAt])
+  @@map("users")
+}
