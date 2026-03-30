@@ -18,6 +18,16 @@ updates:
         dependency-type: 'production'
       dev-dependencies:
         dependency-type: 'development'
+    ignore:
+      - dependency-name: 'typescript'
+        versions:
+          - '>=6.0.0'
+      - dependency-name: 'fastify'
+        versions:
+          - '>=5.8.3'
+      - dependency-name: '@swc/cli'
+        versions:
+          - '>=0.8.0'
 
   - package-ecosystem: 'github-actions'
     directory: '/'
