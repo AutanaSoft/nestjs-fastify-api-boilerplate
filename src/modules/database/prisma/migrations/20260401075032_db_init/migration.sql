@@ -5,6 +5,17 @@ CREATE TYPE "user_role" AS ENUM ('ADMIN', 'USER', 'GUEST');
 CREATE TYPE "user_status" AS ENUM ('REGISTERED', 'ACTIVE', 'BANNED', 'PENDING_PAYMENT', 'PAYMENT_FROZEN', 'FROZEN');
 
 -- CreateTable
+CREATE TABLE "app_settings" (
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "key" VARCHAR(100) NOT NULL,
+    "value" JSONB NOT NULL,
+    "is_system" BOOLEAN NOT NULL DEFAULT false,
+    "updated_at" TIMESTAMPTZ NOT NULL,
+
+    CONSTRAINT "app_settings_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "users" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "user_name" TEXT NOT NULL,
@@ -18,6 +29,12 @@ CREATE TABLE "users" (
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "app_settings_key_key" ON "app_settings"("key");
+
+-- CreateIndex
+CREATE INDEX "app_settings_key_idx" ON "app_settings"("key");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "users_user_name_key" ON "users"("user_name");

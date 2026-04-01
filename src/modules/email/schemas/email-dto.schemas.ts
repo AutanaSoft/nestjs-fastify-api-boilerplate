@@ -28,7 +28,7 @@ export const EmailInputSchema = z.object({
  * Validation schema for auth email actions that require a JWT token.
  */
 export const EmailTokenInputSchema = EmailInputSchema.extend({
-  jwtToken: z.string().min(1, 'JWT token is required'),
+  token: z.string().min(1, 'JWT token is required'),
 });
 
 /**

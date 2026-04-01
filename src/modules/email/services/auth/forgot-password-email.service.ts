@@ -38,7 +38,7 @@ export class ForgotPasswordEmailService {
 
       // 2. Build CTA URL from externally issued JWT token
       const frontendUrl = this._config.APP_FRONTEND_URL;
-      const token = encodeURIComponent(payload.jwtToken);
+      const token = encodeURIComponent(payload.token);
       const ctaUrl = `${frontendUrl}${EmailAuthPath.RESET_PASSWORD}?token=${token}`;
 
       // 3. Render email template

@@ -24,7 +24,9 @@
 
 - Framework: NestJS + TypeScript.
 - HTTP server: Fastify.
-- Database: PostgreSQL with Prisma or Drizzle.
+- Authentication: `@nestjs/passport`, `passport`, `@nestjs/jwt`, `passport-jwt`.
+- WebSockets: `@nestjs/websockets`, `@nestjs/platform-socket.io`.
+- Database: PostgreSQL with Prisma.
 - Validation: Zod + `nestjs-zod`.
 - Testing: Jest + Supertest.
 - Package manager: `pnpm` only.
@@ -44,6 +46,8 @@
 - Throw HTTP exceptions from services when needed.
 - Use `nestjs-pino` for runtime logs; do not use `console.log`.
 - Keep catch blocks typed as `unknown`; narrow with `instanceof Error` before reading error properties.
+- Document generated code with TSDoc (JSDoc-compatible) in English for public classes, methods, and exported functions.
+- Add concise code comments in English for sensitive, non-obvious, or complex logic.
 - Never commit secrets.
 
 ### SHOULD
@@ -54,7 +58,6 @@
 - Prefer `import type` for type-only imports.
 - Prefer explicit types when inference is unclear.
 - Use guard clauses over deep nesting.
-- Document non-trivial public methods/classes with JSDoc.
 - Run minimum relevant checks (`lint`/tests) for touched areas.
 
 ### MAY
@@ -74,7 +77,7 @@
 
 - Controllers: `SubjectController` (for example `UsersController`).
 - Services: either `SubjectService` or split by responsibility
-  (for example `UsersReadService`, `UsersWriteService`, `UsersSecurityService`, `UsersEventsService`).
+  (for example `UsersCreateService`, `UsersUpdateService`, `UsersDeleteService`).
 - Repositories: `SubjectRepository` (for example `UsersRepository`).
 - Entities/Models: `Subject` (for example `User`).
 - DTOs: `ActionSubjectDto` (for example `CreateUserDto`).
@@ -84,7 +87,7 @@
 - Use `src/modules/users/**` as the canonical pattern for new modules and refactors.
 - Replicate:
   - Layering: `Controller -> Services -> Repository`.
-  - Service split by use case type (`read/write/security/events` when applicable).
+  - Service split by use case type (`create/update/delete` when applicable).
   - One module DTO barrel: `<module>.dto.ts`.
   - Zod input/output schemas + serializer DTOs.
   - Abstract repository contract + one persistence implementation bound in module providers.

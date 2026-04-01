@@ -6,17 +6,17 @@ import { IncomingMessage, ServerResponse } from 'http';
 import { LoggerModule } from 'nestjs-pino';
 import { ZodSerializerInterceptor } from 'nestjs-zod';
 
+import databaseConfig from '@/config/database.config';
 import loggerConfig, { LoggerConfig } from '@/config/logger.config';
 import { GlobalExceptionFilter } from '@/shared/filters/global-exception.filter';
-import databaseConfig from '@/config/database.config';
 import appConfig from '../config/app.config';
 import { validate } from '../config/env.validation';
 import swaggerConfig from '../config/swagger.config';
 import { DatabaseModule } from './database/database.module';
 import { EmailModule } from './email/email.module';
 import { HealthModule } from './health/health.module';
-import { UsersModule } from './users/users.module';
 import { SettingsModule } from './settings/settings.module';
+import { UsersModule } from './users/users.module';
 
 /**
  * Módulo principal de la aplicación.
@@ -85,9 +85,9 @@ import { SettingsModule } from './settings/settings.module';
     /** Módulos de dominio y servicios del sistema */
     DatabaseModule,
     HealthModule,
+    UsersModule,
     SettingsModule,
     EmailModule,
-    UsersModule,
   ],
   controllers: [],
   providers: [

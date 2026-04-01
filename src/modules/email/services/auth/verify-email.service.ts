@@ -38,8 +38,8 @@ export class VerifyEmailService {
 
       // 2. Build CTA URL from externally issued JWT token
       const frontendUrl = this._config.APP_FRONTEND_URL;
-      const token = encodeURIComponent(payload.jwtToken);
-      const ctaUrl = `${frontendUrl}${EmailAuthPath.CONFIRM_EMAIL}?token=${token}`;
+      const token = encodeURIComponent(payload.token);
+      const ctaUrl = `${frontendUrl}${EmailAuthPath.VERIFY_EMAIL}?token=${token}`;
 
       // 3. Render email template
       const element = React.createElement(VerifyEmailTemplate, {

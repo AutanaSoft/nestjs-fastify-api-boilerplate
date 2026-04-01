@@ -4,6 +4,7 @@
     "darraghor",
     "datasource",
     "dbgenerated",
+    "fastify",
     "nestjs",
     "nodenext",
     "openssl",
