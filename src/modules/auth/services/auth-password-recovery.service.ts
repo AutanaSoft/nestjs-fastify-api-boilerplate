@@ -1,9 +1,9 @@
 import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
+import { PasswordHashService } from '@modules/security/services';
 import { AUTH_TOKEN_PURPOSES } from '../constants';
 import { AuthRepository } from '../repositories';
 import type { ForgotPasswordInput, ResetPasswordInput } from '../schemas';
 import { JwtTokenService } from './jwt-token.service';
-import { PasswordHashService } from './password-hash.service';
 import { AuthEventsService } from './auth-events.service';
 
 /**

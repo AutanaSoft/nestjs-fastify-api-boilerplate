@@ -1,5 +1,6 @@
 import { ConflictException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { UserRole, UserStatus } from '@/modules/database/prisma/generated/enums';
+import { PasswordHashService } from '@modules/security/services';
 import { AuthRepository } from '../repositories';
 import {
   UserAuthEntitySchema,
@@ -8,7 +9,6 @@ import {
   type UserAuthEntity,
 } from '../schemas';
 import { handleAuthPersistenceError } from '../errors';
-import { PasswordHashService } from './password-hash.service';
 import { RefreshTokenService } from './refresh-token.service';
 import { JwtTokenService } from './jwt-token.service';
 import { AUTH_TOKEN_PURPOSES } from '../constants';

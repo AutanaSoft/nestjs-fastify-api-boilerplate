@@ -5,6 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { UserStatus } from '@/modules/database/prisma/generated/enums';
+import { PasswordHashService } from '@modules/security/services';
 import { AuthRepository } from '../repositories';
 import {
   UserAuthEntitySchema,
@@ -12,7 +13,6 @@ import {
   type SignInInput,
   type UserAuthEntity,
 } from '../schemas';
-import { PasswordHashService } from './password-hash.service';
 import { RefreshTokenService } from './refresh-token.service';
 import { PinoLogger } from 'nestjs-pino';
 

@@ -1,7 +1,6 @@
 import authConfig from '@/config/auth.config';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import type { ConfigType } from '@nestjs/config';
-import { Inject } from '@nestjs/common';
 import * as argon2 from 'argon2';
 import { compare as compareBcrypt } from 'bcrypt';
 

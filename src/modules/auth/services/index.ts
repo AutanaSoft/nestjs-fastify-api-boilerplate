@@ -7,5 +7,4 @@ export * from './auth-sign-in.service';
 export * from './auth-sign-out.service';
 export * from './auth-sign-up.service';
 export * from './jwt-token.service';
-export * from './password-hash.service';
 export * from './refresh-token.service';

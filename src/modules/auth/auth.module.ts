@@ -1,5 +1,6 @@
 import authConfig from '@/config/auth.config';
 import { DatabaseModule } from '@modules/database/database.module';
+import { SecurityModule } from '@modules/security/security.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import type { ConfigType } from '@nestjs/config';
@@ -17,7 +18,6 @@ import {
   AuthSignOutService,
   AuthSignUpService,
   JwtTokenService,
-  PasswordHashService,
   RefreshTokenService,
 } from './services';
 import { JwtStrategy } from './strategies';
@@ -28,6 +28,7 @@ import { JwtStrategy } from './strategies';
 @Module({
   imports: [
     DatabaseModule,
+    SecurityModule,
     ConfigModule,
     PassportModule,
     JwtModule.registerAsync({
@@ -54,7 +55,6 @@ import { JwtStrategy } from './strategies';
     AuthEventsService,
     JwtTokenService,
     RefreshTokenService,
-    PasswordHashService,
     JwtStrategy,
     {
       provide: AuthRepository,
@@ -72,7 +72,6 @@ import { JwtStrategy } from './strategies';
     AuthEventsService,
     JwtTokenService,
     RefreshTokenService,
-    PasswordHashService,
     AuthRepository,
   ],
 })

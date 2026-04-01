@@ -2,7 +2,7 @@ import authConfig from '@/config/auth.config';
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import type { ConfigType } from '@nestjs/config';
 import { createHash, randomBytes } from 'crypto';
-import { parseDurationToMs } from '../constants';
+import { parseDurationToMs } from '../utils';
 import { AuthRepository } from '../repositories';
 import type { AuthSession, UserAuthEntity } from '../schemas';
 import { JwtTokenService } from './jwt-token.service';
