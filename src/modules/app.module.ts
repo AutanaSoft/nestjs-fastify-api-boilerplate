@@ -10,8 +10,10 @@ import databaseConfig from '@/config/database.config';
 import loggerConfig, { LoggerConfig } from '@/config/logger.config';
 import { GlobalExceptionFilter } from '@/shared/filters/global-exception.filter';
 import appConfig from '../config/app.config';
+import authConfig from '../config/auth.config';
 import { validate } from '../config/env.validation';
 import swaggerConfig from '../config/swagger.config';
+import { AuthModule } from './auth/auth.module';
 import { DatabaseModule } from './database/database.module';
 import { EmailModule } from './email/email.module';
 import { HealthModule } from './health/health.module';
@@ -32,7 +34,7 @@ import { UsersModule } from './users/users.module';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env'],
-      load: [appConfig, swaggerConfig, loggerConfig, databaseConfig],
+      load: [appConfig, swaggerConfig, loggerConfig, databaseConfig, authConfig],
       validate,
     }),
 
@@ -85,6 +87,7 @@ import { UsersModule } from './users/users.module';
     /** Módulos de dominio y servicios del sistema */
     DatabaseModule,
     HealthModule,
+    AuthModule,
     UsersModule,
     SettingsModule,
     EmailModule,

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { AuthConfigSchema } from './auth.config';
 
 import { AppConfigSchema } from './app.config';
 import { DatabaseConfigSchema } from './database.config';
@@ -14,6 +15,7 @@ export const EnvValidationSchema = z.object({
   ...DatabaseConfigSchema.shape,
   ...LoggerConfigSchema.shape,
   ...SwaggerConfigSchema.shape,
+  ...AuthConfigSchema.shape,
 });
 
 /**

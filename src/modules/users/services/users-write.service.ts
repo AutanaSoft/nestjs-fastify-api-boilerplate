@@ -1,5 +1,5 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { hash } from 'bcrypt';
+import { hash } from 'argon2';
 import { PinoLogger } from 'nestjs-pino';
 import { handleUsersPersistenceError } from '../errors/users-persistence-error.helper';
 import { UsersRepository } from '../repositories';
@@ -10,8 +10,6 @@ import {
   type UserEntity,
 } from '../schemas';
 import { UsersEventsService } from './users-events.service';
-
-const BCRYPT_SALT_ROUNDS = 10;
 
 /**
  * Handles write use cases for users.
@@ -27,7 +25,7 @@ export class UsersWriteService {
   }
 
   async createUser(payload: CreateUserInput): Promise<UserEntity> {
-    const passwordHash = await hash(payload.password, BCRYPT_SALT_ROUNDS);
+    const passwordHash = await hash(payload.password);
 
     let createdUser: UserEntity;
     try {

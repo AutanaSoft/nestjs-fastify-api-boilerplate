@@ -5,14 +5,12 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { compare, hash } from 'bcrypt';
+import { hash, verify } from 'argon2';
 import { PinoLogger } from 'nestjs-pino';
 import { handleUsersPersistenceError } from '../errors/users-persistence-error.helper';
 import { UsersRepository } from '../repositories';
 import { UserEntitySchema, type UpdatePasswordInput, type UserEntity } from '../schemas';
 import { UsersEventsService } from './users-events.service';
-
-const BCRYPT_SALT_ROUNDS = 10;
 
 /**
  * Handles security-related use cases for users.
@@ -44,13 +42,13 @@ export class UsersSecurityService {
       throw new NotFoundException('User not found');
     }
 
-    const isCurrentPasswordValid = await compare(payload.current, user.password);
+    const isCurrentPasswordValid = await verify(user.password, payload.current);
 
     if (!isCurrentPasswordValid) {
       throw new BadRequestException('Current password is invalid');
     }
 
-    const newPasswordHash = await hash(payload.new, BCRYPT_SALT_ROUNDS);
+    const newPasswordHash = await hash(payload.new);
 
     let updatedUser: UserEntity;
     try {
