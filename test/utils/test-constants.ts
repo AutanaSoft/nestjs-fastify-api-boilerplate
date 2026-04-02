@@ -22,3 +22,13 @@ export const createUserPayloadBase = {
   password: 'Password123!',
   userName: 'e2e-user',
 };
+
+/**
+ * Shared base payload for auth sign-up/sign-in requests.
+ * Email and userName should be suffixed per test to keep uniqueness.
+ */
+export const authSignUpPayloadBase = {
+  email: 'e2e-auth-user@example.com',
+  password: 'Password123_',
+  userName: 'e2e-auth-user',
+};

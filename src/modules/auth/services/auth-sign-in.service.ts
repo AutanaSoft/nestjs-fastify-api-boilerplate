@@ -67,7 +67,7 @@ export class AuthSignInService {
         throw new ForbiddenException('User is not allowed to sign in');
       }
 
-      return this._refreshTokenService.issueTokens(user);
+      return await this._refreshTokenService.issueTokens(user);
     } catch (error: unknown) {
       if (error instanceof UnauthorizedException || error instanceof ForbiddenException) {
         throw error;

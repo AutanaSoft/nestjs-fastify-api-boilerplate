@@ -31,7 +31,7 @@ export class AuthRefreshService {
    */
   async refresh(payload: RefreshInput): Promise<AuthSession> {
     try {
-      return this._refreshTokenService.rotateTokens(payload.refreshToken);
+      return await this._refreshTokenService.rotateTokens(payload.refreshToken);
     } catch (error: unknown) {
       if (error instanceof UnauthorizedException) {
         throw error;
