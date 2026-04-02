@@ -2,16 +2,12 @@ import { ConflictException, Injectable, InternalServerErrorException } from '@ne
 import { UserRole, UserStatus } from '@/modules/database/prisma/generated/enums';
 import { PasswordHashService } from '@modules/security/services';
 import { AuthRepository } from '../repositories';
-import {
-  UserAuthEntitySchema,
-  type AuthSession,
-  type SignUpInput,
-  type UserAuthEntity,
-} from '../schemas';
+import { UserAuthEntitySchema } from '../schemas';
+import type { AuthSession, SignUpInput, UserAuthEntity } from '../interfaces';
 import { handleAuthPersistenceError } from '../errors';
 import { RefreshTokenService } from './refresh-token.service';
 import { JwtTokenService } from './jwt-token.service';
-import { AUTH_TOKEN_PURPOSES } from '../constants';
+import { TokenType } from '../enum';
 import { AuthEventsService } from './auth-events.service';
 import { PinoLogger } from 'nestjs-pino';
 
@@ -75,7 +71,7 @@ export class AuthSignUpService {
       userId: parsedUser.data.id,
       email: parsedUser.data.email,
       userName: parsedUser.data.userName,
-      purpose: AUTH_TOKEN_PURPOSES.VERIFY_EMAIL,
+      purpose: TokenType.VERIFY_EMAIL,
     });
 
     this._authEventsService.emitUserRegistered({

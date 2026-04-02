@@ -2,7 +2,6 @@ import { createZodDto } from 'nestjs-zod';
 import {
   AuthSessionSchema,
   ForgotPasswordInputSchema,
-  MeResponseSchema,
   RefreshInputSchema,
   RequestEmailVerificationInputSchema,
   ResetPasswordInputSchema,
@@ -52,8 +51,3 @@ export class ResetPasswordDto extends createZodDto(ResetPasswordInputSchema) {}
  * Output DTO for auth sessions.
  */
 export class AuthSessionDto extends createZodDto(AuthSessionSchema) {}
-
-/**
- * Output DTO for authenticated user profile.
- */
-export class MeResponseDto extends createZodDto(MeResponseSchema) {}

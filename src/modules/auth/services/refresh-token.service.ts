@@ -4,7 +4,7 @@ import type { ConfigType } from '@nestjs/config';
 import { createHash, randomBytes } from 'crypto';
 import { parseDurationToMs } from '../utils';
 import { AuthRepository } from '../repositories';
-import type { AuthSession, UserAuthEntity } from '../schemas';
+import type { AuthSession, UserAuthEntity } from '../interfaces';
 import { JwtTokenService } from './jwt-token.service';
 
 /**
@@ -91,8 +91,8 @@ export class RefreshTokenService {
     });
 
     return {
-      createdAt: signedAccessToken.createdAt,
-      expiredAt: signedAccessToken.expiresAt,
+      createdAt: signedAccessToken.createdAt.toISOString(),
+      expiredAt: signedAccessToken.expiresAt.toISOString(),
       accessToken: signedAccessToken.token,
       refreshToken: rawRefreshToken,
     };

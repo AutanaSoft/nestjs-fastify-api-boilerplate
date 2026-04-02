@@ -1,13 +1,4 @@
-export interface EmailTokenPayload {
-  email: string;
-  userName: string;
-  token: string;
-}
-
-export interface EmailPayload {
-  email: string;
-  userName: string;
-}
+import type { EmailPayload, EmailTokenPayload } from '../interfaces';
 
 /**
  * Event emitted after user registration to request email verification.

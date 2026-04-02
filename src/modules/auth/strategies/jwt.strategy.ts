@@ -1,11 +1,12 @@
 import authConfig from '@/config/auth.config';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { PassportStrategy } from '@nestjs/passport';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import type { ConfigType } from '@nestjs/config';
-import { Inject } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import type { CurrentUser } from '../interfaces';
+import { TokenType } from '../enum';
 import { AuthRepository } from '../repositories';
-import type { CurrentUser, JwtAccessPayload } from '../interfaces';
+import { JwtAccessPayloadSchema } from '../schemas';
 
 /**
  * Passport JWT strategy for validating access tokens.
@@ -26,24 +27,30 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: JwtAccessPayload): Promise<CurrentUser> {
-    if (payload.type !== 'access') {
+  async validate(payload: unknown): Promise<CurrentUser> {
+    const parsedPayload = JwtAccessPayloadSchema.safeParse(payload);
+
+    if (!parsedPayload.success) {
+      throw new UnauthorizedException('Invalid access token payload');
+    }
+
+    if (parsedPayload.data.type !== TokenType.ACCESS) {
       throw new UnauthorizedException('Invalid access token');
     }
 
-    const session = await this._authRepository.findSessionById(payload.sessionId);
+    const session = await this._authRepository.findSessionById(parsedPayload.data.sessionId);
 
     if (!session || session.revokedAt) {
       throw new UnauthorizedException('Session is no longer valid');
     }
 
     return {
-      id: payload.sub,
-      email: payload.email,
-      userName: payload.userName,
-      role: payload.role,
-      status: payload.status,
-      sessionId: payload.sessionId,
+      id: parsedPayload.data.sub,
+      email: parsedPayload.data.email,
+      userName: parsedPayload.data.userName,
+      role: parsedPayload.data.role,
+      status: parsedPayload.data.status,
+      sessionId: parsedPayload.data.sessionId,
     };
   }
 }

@@ -1,10 +1,4 @@
-import type { UserRole, UserStatus } from '@/modules/database/prisma/generated/enums';
+import type { z } from 'zod';
+import type { CurrentUserSchema } from '../schemas';
 
-export interface CurrentUser {
-  id: string;
-  email: string;
-  userName: string;
-  role: UserRole;
-  status: UserStatus;
-  sessionId: string;
-}
+export type CurrentUser = z.infer<typeof CurrentUserSchema>;

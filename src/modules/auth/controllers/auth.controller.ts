@@ -1,10 +1,9 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ZodSerializerDto } from 'nestjs-zod';
 import {
   AuthSessionDto,
   ForgotPasswordDto,
-  MeResponseDto,
   RefreshDto,
   RequestEmailVerificationDto,
   ResetPasswordDto,
@@ -14,11 +13,9 @@ import {
 } from '../dto';
 import { CurrentUser } from '../decorators';
 import { JwtAuthGuard } from '../guards';
-import type { CurrentUser as CurrentUserPayload } from '../interfaces';
-import type { AuthSession, MeResponse } from '../schemas';
+import type { AuthSession, CurrentUser as CurrentUserPayload } from '../interfaces';
 import {
   AuthEmailVerificationService,
-  AuthMeService,
   AuthPasswordRecoveryService,
   AuthRefreshService,
   AuthSignInService,
@@ -39,7 +36,6 @@ export class AuthController {
     private readonly _authSignOutService: AuthSignOutService,
     private readonly _authEmailVerificationService: AuthEmailVerificationService,
     private readonly _authPasswordRecoveryService: AuthPasswordRecoveryService,
-    private readonly _authMeService: AuthMeService,
   ) {}
 
   @Post('sign-up')
@@ -109,16 +105,5 @@ export class AuthController {
   @ApiResponse({ status: HttpStatus.NO_CONTENT })
   async resetPassword(@Body() payload: ResetPasswordDto): Promise<void> {
     await this._authPasswordRecoveryService.resetPassword(payload);
-  }
-
-  @Get('me')
-  @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ZodSerializerDto(MeResponseDto)
-  @ApiOperation({ summary: 'Get current authenticated user profile' })
-  @ApiResponse({ status: HttpStatus.OK, type: MeResponseDto })
-  async me(@CurrentUser() currentUser: CurrentUserPayload): Promise<MeResponse> {
-    return this._authMeService.getMe(currentUser.id);
   }
 }

@@ -7,12 +7,8 @@ import {
 import { UserStatus } from '@/modules/database/prisma/generated/enums';
 import { PasswordHashService } from '@modules/security/services';
 import { AuthRepository } from '../repositories';
-import {
-  UserAuthEntitySchema,
-  type AuthSession,
-  type SignInInput,
-  type UserAuthEntity,
-} from '../schemas';
+import { UserAuthEntitySchema } from '../schemas';
+import type { AuthSession, SignInInput, UserAuthEntity } from '../interfaces';
 import { RefreshTokenService } from './refresh-token.service';
 import { PinoLogger } from 'nestjs-pino';
 

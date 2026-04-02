@@ -4,13 +4,10 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { AUTH_TOKEN_PURPOSES } from '../constants';
+import { TokenType } from '../enum';
 import { AuthRepository } from '../repositories';
-import {
-  UserAuthEntitySchema,
-  type RequestEmailVerificationInput,
-  type VerifyEmailInput,
-} from '../schemas';
+import { UserAuthEntitySchema } from '../schemas';
+import type { RequestEmailVerificationInput, VerifyEmailInput } from '../interfaces';
 import { JwtTokenService } from './jwt-token.service';
 import { AuthEventsService } from './auth-events.service';
 import { PinoLogger } from 'nestjs-pino';
@@ -40,7 +37,7 @@ export class AuthEmailVerificationService {
       userId: user.id,
       email: user.email,
       userName: user.userName,
-      purpose: AUTH_TOKEN_PURPOSES.VERIFY_EMAIL,
+      purpose: TokenType.VERIFY_EMAIL,
     });
 
     this._authEventsService.emitUserRegistered({
@@ -58,7 +55,7 @@ export class AuthEmailVerificationService {
       throw new BadRequestException('Invalid or expired verification token');
     }
 
-    if (tokenPayload.purpose !== AUTH_TOKEN_PURPOSES.VERIFY_EMAIL) {
+    if (tokenPayload.purpose !== TokenType.VERIFY_EMAIL) {
       throw new ConflictException('Token purpose is invalid');
     }
 

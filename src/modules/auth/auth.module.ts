@@ -11,7 +11,6 @@ import { AuthRepository, PrismaAuthRepository } from './repositories';
 import {
   AuthEmailVerificationService,
   AuthEventsService,
-  AuthMeService,
   AuthPasswordRecoveryService,
   AuthRefreshService,
   AuthSignInService,
@@ -51,7 +50,6 @@ import { JwtStrategy } from './strategies';
     AuthSignOutService,
     AuthEmailVerificationService,
     AuthPasswordRecoveryService,
-    AuthMeService,
     AuthEventsService,
     JwtTokenService,
     RefreshTokenService,
@@ -68,7 +66,6 @@ import { JwtStrategy } from './strategies';
     AuthSignOutService,
     AuthEmailVerificationService,
     AuthPasswordRecoveryService,
-    AuthMeService,
     AuthEventsService,
     JwtTokenService,
     RefreshTokenService,

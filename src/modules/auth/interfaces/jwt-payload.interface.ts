@@ -1,20 +1,14 @@
-import type { UserRole, UserStatus } from '@/modules/database/prisma/generated/enums';
-import type { AUTH_TOKEN_PURPOSES } from '../constants';
+import type { z } from 'zod';
+import type {
+  JwtAccessPayloadSchema,
+  JwtCustomPayloadSchema,
+  SignAccessTokenInputSchema,
+  SignCustomTokenInputSchema,
+  SignedAccessTokenSchema,
+} from '../schemas';
 
-export interface JwtAccessPayload {
-  sub: string;
-  email: string;
-  role: UserRole;
-  status: UserStatus;
-  userName: string;
-  sessionId: string;
-  type: 'access';
-}
-
-export interface JwtCustomPayload {
-  sub: string;
-  email: string;
-  userName: string;
-  purpose: (typeof AUTH_TOKEN_PURPOSES)[keyof typeof AUTH_TOKEN_PURPOSES];
-  type: 'custom';
-}
+export type JwtAccessPayload = z.infer<typeof JwtAccessPayloadSchema>;
+export type JwtCustomPayload = z.infer<typeof JwtCustomPayloadSchema>;
+export type SignAccessTokenInput = z.infer<typeof SignAccessTokenInputSchema>;
+export type SignCustomTokenInput = z.infer<typeof SignCustomTokenInputSchema>;
+export type SignedAccessToken = z.infer<typeof SignedAccessTokenSchema>;

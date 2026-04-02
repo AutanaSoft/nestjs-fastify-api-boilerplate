@@ -1,6 +1,5 @@
 export * from './auth-email-verification.service';
 export * from './auth-events.service';
-export * from './auth-me.service';
 export * from './auth-password-recovery.service';
 export * from './auth-refresh.service';
 export * from './auth-sign-in.service';

@@ -1,8 +1,8 @@
 import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
 import { PasswordHashService } from '@modules/security/services';
-import { AUTH_TOKEN_PURPOSES } from '../constants';
+import { TokenType } from '../enum';
 import { AuthRepository } from '../repositories';
-import type { ForgotPasswordInput, ResetPasswordInput } from '../schemas';
+import type { ForgotPasswordInput, ResetPasswordInput } from '../interfaces';
 import { JwtTokenService } from './jwt-token.service';
 import { AuthEventsService } from './auth-events.service';
 
@@ -29,7 +29,7 @@ export class AuthPasswordRecoveryService {
       userId: user.id,
       email: user.email,
       userName: user.userName,
-      purpose: AUTH_TOKEN_PURPOSES.RESET_PASSWORD,
+      purpose: TokenType.RESET_PASSWORD,
     });
 
     this._authEventsService.emitPasswordResetRequested({
@@ -51,7 +51,7 @@ export class AuthPasswordRecoveryService {
       throw new BadRequestException('Invalid or expired reset token');
     }
 
-    if (tokenPayload.purpose !== AUTH_TOKEN_PURPOSES.RESET_PASSWORD) {
+    if (tokenPayload.purpose !== TokenType.RESET_PASSWORD) {
       throw new ConflictException('Token purpose is invalid');
     }
 

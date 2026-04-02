@@ -5,7 +5,7 @@ import type {
   AuthSessionDbEntity,
   UserDbEntity,
 } from '@/modules/database/prisma/generated/client';
-import type { CreateAuthUserInput } from '../schemas';
+import type { CreateAuthUserInput } from '../interfaces';
 import { AuthRepository } from './auth.repository';
 
 @Injectable()

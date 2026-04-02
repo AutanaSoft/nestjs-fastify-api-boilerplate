@@ -3,15 +3,14 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import type { ConfigType } from '@nestjs/config';
 import { Inject } from '@nestjs/common';
-import { AUTH_TOKEN_PURPOSES } from '../constants';
-import type { JwtAccessPayload, JwtCustomPayload } from '../interfaces';
-import type { AuthTokenPurpose } from '../schemas';
-
-export interface SignedAccessToken {
-  token: string;
-  createdAt: Date;
-  expiresAt: Date;
-}
+import { TokenType } from '../enum';
+import type {
+  JwtCustomPayload,
+  SignAccessTokenInput,
+  SignCustomTokenInput,
+  SignedAccessToken,
+} from '../interfaces';
+import { JwtCustomPayloadSchema } from '../schemas';
 
 /**
  * JWT service for access and custom-purpose tokens.
@@ -24,12 +23,12 @@ export class JwtTokenService {
     private readonly _jwtService: JwtService,
   ) {}
 
-  async signAccessToken(payload: Omit<JwtAccessPayload, 'type'>): Promise<SignedAccessToken> {
+  async signAccessToken(payload: SignAccessTokenInput): Promise<SignedAccessToken> {
     const createdAt = new Date();
     const token = await this._jwtService.signAsync(
       {
         ...payload,
-        type: 'access' as const,
+        type: TokenType.ACCESS,
       },
       {
         secret: this._config.AUTH_JWT_SECRET,
@@ -46,14 +45,9 @@ export class JwtTokenService {
     };
   }
 
-  async signCustomToken(payload: {
-    userId: string;
-    email: string;
-    userName: string;
-    purpose: AuthTokenPurpose;
-  }): Promise<string> {
+  async signCustomToken(payload: SignCustomTokenInput): Promise<string> {
     const ttl =
-      payload.purpose === AUTH_TOKEN_PURPOSES.VERIFY_EMAIL
+      payload.purpose === TokenType.VERIFY_EMAIL
         ? this._config.AUTH_VERIFY_EMAIL_TOKEN_TTL
         : this._config.AUTH_RESET_PASSWORD_TOKEN_TTL;
 
@@ -75,17 +69,19 @@ export class JwtTokenService {
   }
 
   async verifyCustomToken(token: string): Promise<JwtCustomPayload> {
-    const payload = await this._jwtService.verifyAsync<JwtCustomPayload>(token, {
+    const decodedPayload: unknown = await this._jwtService.verifyAsync(token, {
       secret: this._config.AUTH_JWT_SECRET,
       issuer: this._config.AUTH_JWT_ISSUER,
       audience: this._config.AUTH_JWT_AUDIENCE,
     });
 
-    if (payload.type !== 'custom') {
-      throw new UnauthorizedException('Invalid token type');
+    const parsedPayload = JwtCustomPayloadSchema.safeParse(decodedPayload);
+
+    if (!parsedPayload.success) {
+      throw new UnauthorizedException('Invalid token payload');
     }
 
-    return payload;
+    return parsedPayload.data;
   }
 
   private extractExpirationDate(token: string): Date {

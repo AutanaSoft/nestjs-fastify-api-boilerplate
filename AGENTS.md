@@ -39,8 +39,13 @@
 - Organize by feature module.
 - Keep database access centralized under `src/modules/database/**`.
 - Never edit generated Prisma files under `src/modules/database/prisma/generated/**`.
+- Follow a schema-first contract model with Zod.
 - Validate all external inputs (`body`, `query`, `params`) with Zod DTOs.
 - Serialize API responses with `createZodDto` + `@ZodSerializerDto(...)`.
+- Export only Zod schemas from `schemas/**`.
+- In `interfaces/**`, define exported `type`/`interface` as aliases inferred from schemas (`z.infer`, `z.input`, `z.output`).
+- Avoid manually defining exported contract types that duplicate a Zod schema shape.
+- Validate untrusted boundary payloads (for example decoded JWTs, event payloads, queue messages) with their Zod schemas before use.
 - Never return raw DB entities directly to clients.
 - Use constructor injection (no service locator pattern).
 - Throw HTTP exceptions from services when needed.

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import type { AuthSession, RefreshInput } from '../schemas';
+import type { AuthSession, RefreshInput } from '../interfaces';
 import { RefreshTokenService } from './refresh-token.service';
 
 /**
