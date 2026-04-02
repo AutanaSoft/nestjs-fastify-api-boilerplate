@@ -27,6 +27,13 @@ import { AuthRepository } from './auth.repository';
 const PRISMA_UNIQUE_CONSTRAINT = 'P2002';
 const PRISMA_NOT_FOUND = 'P2025';
 
+/**
+ * Prisma-backed implementation of the auth repository contract.
+ *
+ * This repository is the only auth-module layer that knows Prisma details.
+ * All returned records are normalized through Zod schemas before leaving
+ * persistence boundaries.
+ */
 @Injectable()
 export class PrismaAuthRepository extends AuthRepository {
   constructor(private readonly _prismaService: PrismaService) {
@@ -74,6 +81,12 @@ export class PrismaAuthRepository extends AuthRepository {
     }
   }
 
+  /**
+   * Finds an auth user by id.
+   *
+   * @param id User UUID.
+   * @returns User entity when found, otherwise `null`.
+   */
   async findUserById(id: string): Promise<UserAuthEntity | null> {
     const foundUser = await this._prismaService.userDbEntity.findUnique({
       where: { id },
@@ -82,6 +95,12 @@ export class PrismaAuthRepository extends AuthRepository {
     return foundUser ? UserAuthEntitySchema.parse(foundUser) : null;
   }
 
+  /**
+   * Finds an auth user by email.
+   *
+   * @param email Normalized user email.
+   * @returns User entity when found, otherwise `null`.
+   */
   async findUserByEmail(email: string): Promise<UserAuthEntity | null> {
     const foundUser = await this._prismaService.userDbEntity.findUnique({
       where: { email },
@@ -90,6 +109,12 @@ export class PrismaAuthRepository extends AuthRepository {
     return foundUser ? UserAuthEntitySchema.parse(foundUser) : null;
   }
 
+  /**
+   * Finds an auth user by user name.
+   *
+   * @param userName User public handle.
+   * @returns User entity when found, otherwise `null`.
+   */
   async findUserByUserName(userName: string): Promise<UserAuthEntity | null> {
     const foundUser = await this._prismaService.userDbEntity.findUnique({
       where: { userName },
@@ -98,6 +123,13 @@ export class PrismaAuthRepository extends AuthRepository {
     return foundUser ? UserAuthEntitySchema.parse(foundUser) : null;
   }
 
+  /**
+   * Marks user email as verified.
+   *
+   * @param id User UUID.
+   * @param verifiedAt Verification timestamp.
+   * @returns Updated user entity.
+   */
   async verifyUserEmailById(id: string, verifiedAt: Date): Promise<UserAuthEntity> {
     const verifiedUser = await this._prismaService.userDbEntity.update({
       where: { id },
@@ -107,6 +139,13 @@ export class PrismaAuthRepository extends AuthRepository {
     return UserAuthEntitySchema.parse(verifiedUser);
   }
 
+  /**
+   * Updates user password hash.
+   *
+   * @param id User UUID.
+   * @param passwordHash Pre-hashed password.
+   * @returns Updated user entity.
+   */
   async updateUserPasswordById(id: string, passwordHash: string): Promise<UserAuthEntity> {
     const updatedUser = await this._prismaService.userDbEntity.update({
       where: { id },
@@ -116,6 +155,12 @@ export class PrismaAuthRepository extends AuthRepository {
     return UserAuthEntitySchema.parse(updatedUser);
   }
 
+  /**
+   * Creates a new auth session for a user.
+   *
+   * @param userId User UUID.
+   * @returns Created session entity.
+   */
   async createSession(userId: string): Promise<AuthSessionEntity> {
     const createdSession = await this._prismaService.authSessionDbEntity.create({
       data: {
@@ -126,6 +171,12 @@ export class PrismaAuthRepository extends AuthRepository {
     return AuthSessionEntitySchema.parse(createdSession);
   }
 
+  /**
+   * Finds an auth session by identifier.
+   *
+   * @param id Session UUID.
+   * @returns Session entity when found, otherwise `null`.
+   */
   async findSessionById(id: string): Promise<AuthSessionEntity | null> {
     const foundSession = await this._prismaService.authSessionDbEntity.findUnique({
       where: { id },
@@ -134,6 +185,13 @@ export class PrismaAuthRepository extends AuthRepository {
     return foundSession ? AuthSessionEntitySchema.parse(foundSession) : null;
   }
 
+  /**
+   * Revokes a session if it is still active.
+   *
+   * @param id Session UUID.
+   * @param revokedAt Revocation timestamp.
+   * @returns `void`.
+   */
   async revokeSessionById(id: string, revokedAt: Date): Promise<void> {
     await this._prismaService.authSessionDbEntity.updateMany({
       where: {
@@ -146,6 +204,12 @@ export class PrismaAuthRepository extends AuthRepository {
     });
   }
 
+  /**
+   * Persists a refresh token record.
+   *
+   * @param payload Refresh token persistence contract.
+   * @returns Created refresh token entity.
+   */
   async createRefreshToken(payload: CreateRefreshTokenInput): Promise<AuthRefreshTokenEntity> {
     const createdRefreshToken = await this._prismaService.authRefreshTokenDbEntity.create({
       data: {
@@ -159,6 +223,12 @@ export class PrismaAuthRepository extends AuthRepository {
     return AuthRefreshTokenEntitySchema.parse(createdRefreshToken);
   }
 
+  /**
+   * Finds a refresh token by token hash including session and user relations.
+   *
+   * @param tokenHash SHA-256 token hash.
+   * @returns Refresh token aggregate when found, otherwise `null`.
+   */
   async findRefreshTokenByHash(tokenHash: string): Promise<AuthRefreshTokenWithSession | null> {
     const refreshToken = await this._prismaService.authRefreshTokenDbEntity.findUnique({
       where: { tokenHash },
@@ -174,6 +244,13 @@ export class PrismaAuthRepository extends AuthRepository {
     return refreshToken ? AuthRefreshTokenWithSessionSchema.parse(refreshToken) : null;
   }
 
+  /**
+   * Marks a refresh token as used.
+   *
+   * @param id Refresh token UUID.
+   * @param usedAt Usage timestamp.
+   * @returns `void`.
+   */
   async markRefreshTokenAsUsed(id: string, usedAt: Date): Promise<void> {
     await this._prismaService.authRefreshTokenDbEntity.update({
       where: { id },
@@ -181,6 +258,13 @@ export class PrismaAuthRepository extends AuthRepository {
     });
   }
 
+  /**
+   * Revokes a single refresh token when still active.
+   *
+   * @param id Refresh token UUID.
+   * @param revokedAt Revocation timestamp.
+   * @returns `void`.
+   */
   async revokeRefreshTokenById(id: string, revokedAt: Date): Promise<void> {
     await this._prismaService.authRefreshTokenDbEntity.updateMany({
       where: {
@@ -193,6 +277,13 @@ export class PrismaAuthRepository extends AuthRepository {
     });
   }
 
+  /**
+   * Revokes all active refresh tokens for a session.
+   *
+   * @param sessionId Session UUID.
+   * @param revokedAt Revocation timestamp.
+   * @returns `void`.
+   */
   async revokeRefreshTokensBySessionId(sessionId: string, revokedAt: Date): Promise<void> {
     await this._prismaService.authRefreshTokenDbEntity.updateMany({
       where: {
