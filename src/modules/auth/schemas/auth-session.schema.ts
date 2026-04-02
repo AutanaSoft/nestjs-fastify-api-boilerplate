@@ -1,5 +1,6 @@
 import { IsoDateTimeFromDateSchema, UuidSchema } from '@/shared/schemas';
 import { z } from 'zod';
+import { UserAuthEntitySchema } from './auth-user.schema';
 
 /** Public auth session response shape. */
 export const AuthSessionSchema = z.object({
@@ -29,4 +30,22 @@ export const AuthRefreshTokenEntitySchema = z.object({
   rotatedFromId: UuidSchema.nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
+});
+
+/** Input schema for creating a persisted refresh token. */
+export const CreateRefreshTokenInputSchema = z.object({
+  sessionId: UuidSchema,
+  tokenHash: z.string().min(1),
+  expiresAt: z.date(),
+  rotatedFromId: UuidSchema.optional(),
+});
+
+/** Session entity enriched with its owning user. */
+export const AuthSessionWithUserSchema = AuthSessionEntitySchema.extend({
+  user: UserAuthEntitySchema,
+});
+
+/** Refresh token entity enriched with session and user. */
+export const AuthRefreshTokenWithSessionSchema = AuthRefreshTokenEntitySchema.extend({
+  session: AuthSessionWithUserSchema,
 });

@@ -1,10 +1,8 @@
 import { ConflictException, Injectable, InternalServerErrorException } from '@nestjs/common';
-import { UserRole, UserStatus } from '@/modules/database/prisma/generated/enums';
 import { PasswordHashService } from '@modules/security/services';
 import { AuthRepository } from '../repositories';
-import { UserAuthEntitySchema } from '../schemas';
+import { USER_ROLES, USER_STATUSES, UserAuthEntitySchema } from '../schemas';
 import type { AuthSession, SignUpInput, UserAuthEntity } from '../interfaces';
-import { handleAuthPersistenceError } from '../errors';
 import { RefreshTokenService } from './refresh-token.service';
 import { JwtTokenService } from './jwt-token.service';
 import { TokenType } from '../enum';
@@ -39,22 +37,13 @@ export class AuthSignUpService {
 
     const passwordHash = await this._passwordHashService.hashPassword(payload.password);
 
-    let createdUser: UserAuthEntity;
-    try {
-      createdUser = await this._authRepository.createUser({
-        email: payload.email,
-        userName: payload.userName,
-        password: passwordHash,
-        role: UserRole.USER,
-        status: UserStatus.REGISTERED,
-      });
-    } catch (error: unknown) {
-      handleAuthPersistenceError({
-        error,
-        logger: this._logger,
-        fallbackMessage: 'Could not create user during sign-up',
-      });
-    }
+    const createdUser: UserAuthEntity = await this._authRepository.createUser({
+      email: payload.email,
+      userName: payload.userName,
+      password: passwordHash,
+      role: USER_ROLES.USER,
+      status: USER_STATUSES.REGISTERED,
+    });
 
     const parsedUser = UserAuthEntitySchema.safeParse(createdUser);
 

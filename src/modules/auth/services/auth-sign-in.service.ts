@@ -4,11 +4,10 @@ import {
   InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { UserStatus } from '@/modules/database/prisma/generated/enums';
 import { PasswordHashService } from '@modules/security/services';
 import { AuthRepository } from '../repositories';
-import { UserAuthEntitySchema } from '../schemas';
-import type { AuthSession, SignInInput, UserAuthEntity } from '../interfaces';
+import { USER_STATUSES, UserAuthEntitySchema } from '../schemas';
+import type { AuthSession, SignInInput } from '../interfaces';
 import { RefreshTokenService } from './refresh-token.service';
 import { PinoLogger } from 'nestjs-pino';
 
@@ -33,25 +32,24 @@ export class AuthSignInService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const foundUser = user as UserAuthEntity;
     const isPasswordValid = await this._passwordHashService.verifyPassword(
       payload.password,
-      foundUser.password,
+      user.password,
     );
 
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    if (foundUser.status === UserStatus.BANNED || foundUser.status === UserStatus.FROZEN) {
+    if (user.status === USER_STATUSES.BANNED || user.status === USER_STATUSES.FROZEN) {
       throw new ForbiddenException('User is not allowed to sign in');
     }
 
-    const parsedUser = UserAuthEntitySchema.safeParse(foundUser);
+    const parsedUser = UserAuthEntitySchema.safeParse(user);
 
     if (!parsedUser.success) {
       this._logger.error(
-        { error: parsedUser.error, userId: foundUser.id },
+        { error: parsedUser.error, userId: user.id },
         'Sign-in user failed schema validation',
       );
       throw new InternalServerErrorException('Internal server error');

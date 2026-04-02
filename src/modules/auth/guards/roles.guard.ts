@@ -1,8 +1,7 @@
-import type { UserRole } from '@/modules/database/prisma/generated/enums';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ROLES_METADATA_KEY } from '../decorators';
-import type { CurrentUser } from '../interfaces';
+import type { CurrentUser, UserRole } from '../interfaces';
 
 /**
  * Validates role-based authorization metadata.

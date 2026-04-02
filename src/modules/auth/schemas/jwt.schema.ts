@@ -1,16 +1,13 @@
-import { UserRole, UserStatus } from '@/modules/database/prisma/generated/enums';
 import { z } from 'zod';
 import { TokenType } from '../enum';
 import { AuthTokenPurposeSchema } from './auth-token-purpose.schema';
+import { CurrentUserSchema } from './auth-user.schema';
 
 /** Decoded access token payload shape. */
-export const JwtAccessPayloadSchema = z.object({
+export const JwtAccessPayloadSchema = CurrentUserSchema.omit({
+  id: true,
+}).extend({
   sub: z.uuid(),
-  email: z.email(),
-  role: z.enum(UserRole),
-  status: z.enum(UserStatus),
-  userName: z.string().min(1),
-  sessionId: z.uuid(),
   type: z.literal(TokenType.ACCESS),
 });
 

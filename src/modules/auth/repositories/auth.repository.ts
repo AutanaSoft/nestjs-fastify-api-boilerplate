@@ -1,38 +1,28 @@
 import type {
-  AuthRefreshTokenDbEntity,
-  AuthSessionDbEntity,
-  UserDbEntity,
-} from '@/modules/database/prisma/generated/client';
-import type { CreateAuthUserInput } from '../interfaces';
+  AuthRefreshTokenEntity,
+  AuthRefreshTokenWithSession,
+  AuthSessionEntity,
+  CreateAuthUserInput,
+  CreateRefreshTokenInput,
+  UserAuthEntity,
+} from '../interfaces';
 
 export abstract class AuthRepository {
-  abstract createUser(payload: CreateAuthUserInput): Promise<UserDbEntity>;
-  abstract findUserById(id: string): Promise<UserDbEntity | null>;
-  abstract findUserByEmail(email: string): Promise<UserDbEntity | null>;
-  abstract findUserByUserName(userName: string): Promise<UserDbEntity | null>;
-  abstract findUserByIdentifier(identifier: string): Promise<UserDbEntity | null>;
-  abstract verifyUserEmailById(id: string, verifiedAt: Date): Promise<UserDbEntity>;
-  abstract updateUserPasswordById(id: string, passwordHash: string): Promise<UserDbEntity>;
+  abstract createUser(payload: CreateAuthUserInput): Promise<UserAuthEntity>;
+  abstract findUserById(id: string): Promise<UserAuthEntity | null>;
+  abstract findUserByEmail(email: string): Promise<UserAuthEntity | null>;
+  abstract findUserByUserName(userName: string): Promise<UserAuthEntity | null>;
+  abstract findUserByIdentifier(identifier: string): Promise<UserAuthEntity | null>;
+  abstract verifyUserEmailById(id: string, verifiedAt: Date): Promise<UserAuthEntity>;
+  abstract updateUserPasswordById(id: string, passwordHash: string): Promise<UserAuthEntity>;
 
-  abstract createSession(userId: string): Promise<AuthSessionDbEntity>;
-  abstract findSessionById(id: string): Promise<AuthSessionDbEntity | null>;
+  abstract createSession(userId: string): Promise<AuthSessionEntity>;
+  abstract findSessionById(id: string): Promise<AuthSessionEntity | null>;
   abstract revokeSessionById(id: string, revokedAt: Date): Promise<void>;
 
-  abstract createRefreshToken(payload: {
-    sessionId: string;
-    tokenHash: string;
-    expiresAt: Date;
-    rotatedFromId?: string;
-  }): Promise<AuthRefreshTokenDbEntity>;
+  abstract createRefreshToken(payload: CreateRefreshTokenInput): Promise<AuthRefreshTokenEntity>;
 
-  abstract findRefreshTokenByHash(tokenHash: string): Promise<
-    | (AuthRefreshTokenDbEntity & {
-        session: AuthSessionDbEntity & {
-          user: UserDbEntity;
-        };
-      })
-    | null
-  >;
+  abstract findRefreshTokenByHash(tokenHash: string): Promise<AuthRefreshTokenWithSession | null>;
 
   abstract markRefreshTokenAsUsed(id: string, usedAt: Date): Promise<void>;
   abstract revokeRefreshTokenById(id: string, revokedAt: Date): Promise<void>;
