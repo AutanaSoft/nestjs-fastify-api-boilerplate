@@ -37,8 +37,9 @@
 
 - Follow layered architecture: `Controller -> Services -> Repository`.
 - Organize by feature module.
-- Keep database access centralized under `src/modules/database/**`.
+- Keep ORM client wiring under `src/modules/database/**` and restrict ORM usage to concrete repository implementations (for example `src/modules/<module>/repositories/prisma-*.repository.ts`).
 - Never edit generated Prisma files under `src/modules/database/prisma/generated/**`.
+- Never import Prisma generated types/enums in controllers, services, DTOs, schemas, or interfaces. Prisma generated artifacts are allowed only in concrete persistence implementations.
 - Follow a schema-first contract model with Zod.
 - Validate all external inputs (`body`, `query`, `params`) with Zod DTOs.
 - Serialize API responses with `createZodDto` + `@ZodSerializerDto(...)`.
@@ -48,10 +49,10 @@
 - Validate untrusted boundary payloads (for example decoded JWTs, event payloads, queue messages) with their Zod schemas before use.
 - Never return raw DB entities directly to clients.
 - Use constructor injection (no service locator pattern).
-- Throw HTTP exceptions from services when needed.
+- Application services that serve HTTP use cases must throw `HttpException` types. Internal domain/token services may throw module domain/persistence errors, which must be translated to `HttpException` at the orchestration service boundary.
 - Use `nestjs-pino` for runtime logs; do not use `console.log`.
-- Keep catch blocks typed as `unknown`; narrow with `instanceof Error` before reading error properties.
-- Document generated code with TSDoc (JSDoc-compatible) in English for public classes, methods, and exported functions.
+- Keep catch blocks typed as `unknown`; narrow with `instanceof Error` before reading error properties. Passing `unknown` as structured log metadata is allowed when no properties are accessed.
+- Document code with TSDoc (JSDoc-compatible) in English for public classes and public methods in controllers, services, repositories, guards, strategies, decorators, and exported functions.
 - Add concise code comments in English for sensitive, non-obvious, or complex logic.
 - Never commit secrets.
 
@@ -96,7 +97,7 @@
   - One module DTO barrel: `<module>.dto.ts`.
   - Zod input/output schemas + serializer DTOs.
   - Abstract repository contract + one persistence implementation bound in module providers.
-  - Module-local persistence error helper under `errors/`.
+  - Module-local persistence error strategy under `errors/` (helper-based mapping or typed persistence error classes).
 - Do not introduce a different module structure unless explicitly requested.
 
 ## 9. Commands
