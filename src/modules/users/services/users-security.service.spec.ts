@@ -4,15 +4,9 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Test, type TestingModule } from '@nestjs/testing';
+import { PasswordHashService } from '@modules/security/services';
 import { UserRole, UserStatus } from '@/modules/database/prisma/generated/enums';
 import { PinoLogger } from 'nestjs-pino';
-
-jest.mock('bcrypt', () => ({
-  compare: jest.fn(),
-  hash: jest.fn(),
-}));
-
-import { compare, hash } from 'bcrypt';
 import { UsersRepository } from '../repositories';
 import { UsersEventsService } from './users-events.service';
 import { UsersSecurityService } from './users-security.service';
@@ -23,10 +17,10 @@ describe('UsersSecurityService', () => {
   let usersEventsService: jest.Mocked<
     Pick<UsersEventsService, 'emitUserPasswordUpdated' | 'emitUserEmailVerified'>
   >;
+  let passwordHashService: jest.Mocked<
+    Pick<PasswordHashService, 'verifyPassword' | 'hashPassword'>
+  >;
   let logger: jest.Mocked<Pick<PinoLogger, 'setContext' | 'error'>>;
-
-  const compareMock = compare as jest.MockedFunction<typeof compare>;
-  const hashMock = hash as jest.MockedFunction<typeof hash>;
 
   const baseUser = {
     id: '550e8400-e29b-41d4-a716-446655440000',
@@ -56,6 +50,11 @@ describe('UsersSecurityService', () => {
       emitUserEmailVerified: jest.fn(),
     };
 
+    passwordHashService = {
+      verifyPassword: jest.fn(),
+      hashPassword: jest.fn(),
+    };
+
     logger = {
       setContext: jest.fn(),
       error: jest.fn(),
@@ -66,6 +65,7 @@ describe('UsersSecurityService', () => {
         UsersSecurityService,
         { provide: UsersRepository, useValue: usersRepository },
         { provide: UsersEventsService, useValue: usersEventsService },
+        { provide: PasswordHashService, useValue: passwordHashService },
         { provide: PinoLogger, useValue: logger },
       ],
     }).compile();
@@ -95,7 +95,7 @@ describe('UsersSecurityService', () => {
 
   it('should throw BadRequestException when current password is invalid', async () => {
     usersRepository.findById.mockResolvedValue(baseUser as never);
-    compareMock.mockResolvedValue(false as never);
+    passwordHashService.verifyPassword.mockResolvedValue(false);
 
     await expect(
       service.updatePassword(baseUser.id, {
@@ -108,8 +108,8 @@ describe('UsersSecurityService', () => {
 
   it('should update password and emit event', async () => {
     usersRepository.findById.mockResolvedValue(baseUser as never);
-    compareMock.mockResolvedValue(true as never);
-    hashMock.mockResolvedValue('new-hash');
+    passwordHashService.verifyPassword.mockResolvedValue(true);
+    passwordHashService.hashPassword.mockResolvedValue('new-hash');
     usersRepository.updatePassword.mockResolvedValue({
       ...baseUser,
       password: 'new-hash',
@@ -129,8 +129,8 @@ describe('UsersSecurityService', () => {
 
   it('should throw InternalServerErrorException when updatePassword persistence fails', async () => {
     usersRepository.findById.mockResolvedValue(baseUser as never);
-    compareMock.mockResolvedValue(true as never);
-    hashMock.mockResolvedValue('new-hash');
+    passwordHashService.verifyPassword.mockResolvedValue(true);
+    passwordHashService.hashPassword.mockResolvedValue('new-hash');
     usersRepository.updatePassword.mockRejectedValue(new Error('db error'));
 
     await expect(

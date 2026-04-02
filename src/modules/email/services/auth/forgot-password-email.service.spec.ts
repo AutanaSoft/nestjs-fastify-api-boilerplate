@@ -53,7 +53,7 @@ describe('ForgotPasswordEmailService', () => {
     const mockInput = {
       to: 'test@example.com',
       name: 'Test User',
-      jwtToken: 'header.payload.signature',
+      token: 'header.payload.signature',
     };
 
     it('should send password recovery email with jwt token in the URL', async () => {

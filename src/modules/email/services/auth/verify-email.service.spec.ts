@@ -53,7 +53,7 @@ describe('VerifyEmailService', () => {
     const mockInput = {
       to: 'test@example.com',
       name: 'Test User',
-      jwtToken: 'a.b.c',
+      token: 'a.b.c',
     };
 
     it('should send the verification email with an encoded JWT token in the URL', async () => {
