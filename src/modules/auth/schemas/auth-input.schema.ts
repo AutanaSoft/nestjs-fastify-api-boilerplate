@@ -10,10 +10,7 @@ export const SignUpInputSchema = z.object({
 
 /** Input schema for sign-in. */
 export const SignInInputSchema = z.object({
-  identifier: z
-    .string()
-    .min(1)
-    .transform((value) => value.trim()),
+  email: EmailSchema,
   password: PasswordSchema,
 });
 

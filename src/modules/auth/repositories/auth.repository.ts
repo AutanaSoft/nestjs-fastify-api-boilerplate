@@ -12,7 +12,6 @@ export abstract class AuthRepository {
   abstract findUserById(id: string): Promise<UserAuthEntity | null>;
   abstract findUserByEmail(email: string): Promise<UserAuthEntity | null>;
   abstract findUserByUserName(userName: string): Promise<UserAuthEntity | null>;
-  abstract findUserByIdentifier(identifier: string): Promise<UserAuthEntity | null>;
   abstract verifyUserEmailById(id: string, verifiedAt: Date): Promise<UserAuthEntity>;
   abstract updateUserPasswordById(id: string, passwordHash: string): Promise<UserAuthEntity>;
 

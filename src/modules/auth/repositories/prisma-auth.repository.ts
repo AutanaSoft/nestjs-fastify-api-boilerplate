@@ -98,19 +98,6 @@ export class PrismaAuthRepository extends AuthRepository {
     return foundUser ? UserAuthEntitySchema.parse(foundUser) : null;
   }
 
-  async findUserByIdentifier(identifier: string): Promise<UserAuthEntity | null> {
-    const trimmed = identifier.trim();
-    const normalizedEmail = trimmed.toLowerCase();
-
-    const foundUser = await this._prismaService.userDbEntity.findFirst({
-      where: {
-        OR: [{ email: normalizedEmail }, { userName: trimmed }],
-      },
-    });
-
-    return foundUser ? UserAuthEntitySchema.parse(foundUser) : null;
-  }
-
   async verifyUserEmailById(id: string, verifiedAt: Date): Promise<UserAuthEntity> {
     const verifiedUser = await this._prismaService.userDbEntity.update({
       where: { id },
