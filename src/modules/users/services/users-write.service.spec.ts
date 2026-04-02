@@ -1,13 +1,8 @@
 import { InternalServerErrorException } from '@nestjs/common';
 import { Test, type TestingModule } from '@nestjs/testing';
+import { PasswordHashService } from '@modules/security/services';
 import { UserRole, UserStatus } from '@/modules/database/prisma/generated/enums';
 import { PinoLogger } from 'nestjs-pino';
-
-jest.mock('bcrypt', () => ({
-  hash: jest.fn(),
-}));
-
-import { hash } from 'bcrypt';
 import { UsersRepository } from '../repositories';
 import { UsersEventsService } from './users-events.service';
 import { UsersWriteService } from './users-write.service';
@@ -16,9 +11,8 @@ describe('UsersWriteService', () => {
   let service: UsersWriteService;
   let usersRepository: jest.Mocked<UsersRepository>;
   let usersEventsService: jest.Mocked<Pick<UsersEventsService, 'emitUserCreated'>>;
+  let passwordHashService: jest.Mocked<Pick<PasswordHashService, 'hashPassword'>>;
   let logger: jest.Mocked<Pick<PinoLogger, 'setContext' | 'error'>>;
-
-  const hashMock = hash as jest.MockedFunction<typeof hash>;
 
   const baseUser = {
     id: '550e8400-e29b-41d4-a716-446655440000',
@@ -47,6 +41,10 @@ describe('UsersWriteService', () => {
       emitUserCreated: jest.fn(),
     };
 
+    passwordHashService = {
+      hashPassword: jest.fn(),
+    };
+
     logger = {
       setContext: jest.fn(),
       error: jest.fn(),
@@ -57,6 +55,7 @@ describe('UsersWriteService', () => {
         UsersWriteService,
         { provide: UsersRepository, useValue: usersRepository },
         { provide: UsersEventsService, useValue: usersEventsService },
+        { provide: PasswordHashService, useValue: passwordHashService },
         { provide: PinoLogger, useValue: logger },
       ],
     }).compile();
@@ -73,7 +72,7 @@ describe('UsersWriteService', () => {
   });
 
   it('should create user, hash password and emit user created event', async () => {
-    hashMock.mockResolvedValue('hashed-password');
+    passwordHashService.hashPassword.mockResolvedValue('hashed-password');
     usersRepository.create.mockResolvedValue(baseUser as never);
 
     const payload = {
@@ -84,7 +83,7 @@ describe('UsersWriteService', () => {
 
     await expect(service.createUser(payload as never)).resolves.toEqual(baseUser);
 
-    expect(hashMock).toHaveBeenCalledWith('plain-password', 10);
+    expect(passwordHashService.hashPassword).toHaveBeenCalledWith('plain-password');
     expect(usersRepository.create).toHaveBeenCalledWith(
       expect.objectContaining({
         email: payload.email,
@@ -95,7 +94,7 @@ describe('UsersWriteService', () => {
   });
 
   it('should throw InternalServerErrorException when created user fails schema validation', async () => {
-    hashMock.mockResolvedValue('hashed-password');
+    passwordHashService.hashPassword.mockResolvedValue('hashed-password');
     usersRepository.create.mockResolvedValue({ ...baseUser, email: 'invalid-email' } as never);
 
     await expect(
@@ -110,7 +109,7 @@ describe('UsersWriteService', () => {
   });
 
   it('should throw InternalServerErrorException when create fails', async () => {
-    hashMock.mockResolvedValue('hashed-password');
+    passwordHashService.hashPassword.mockResolvedValue('hashed-password');
     usersRepository.create.mockRejectedValue(new Error('db error'));
 
     await expect(

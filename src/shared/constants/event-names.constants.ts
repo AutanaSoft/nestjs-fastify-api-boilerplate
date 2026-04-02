@@ -5,6 +5,17 @@
  * ensuring type safety and preventing typos when dispatching or listening to internal events.
  */
 export const EVENT_NAMES = {
+  /** Auth domain events. */
+  AUTH: {
+    /** Fired when a user registers through auth sign-up and needs verification email. */
+    USER_REGISTERED: 'auth.user.registered',
+    /** Fired when a user successfully verifies email. */
+    EMAIL_VERIFIED: 'auth.email.verified',
+    /** Fired when a user requests password reset. */
+    PASSWORD_RESET_REQUESTED: 'auth.password.reset.requested',
+    /** Fired when a user successfully resets password. */
+    PASSWORD_RESET: 'auth.password.reset',
+  },
   /** User domain events. */
   USER: {
     /** Fired when a new user is created. */

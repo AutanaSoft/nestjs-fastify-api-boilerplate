@@ -1,5 +1,5 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { hash } from 'bcrypt';
+import { PasswordHashService } from '@modules/security/services';
 import { PinoLogger } from 'nestjs-pino';
 import { handleUsersPersistenceError } from '../errors/users-persistence-error.helper';
 import { UsersRepository } from '../repositories';
@@ -11,8 +11,6 @@ import {
 } from '../schemas';
 import { UsersEventsService } from './users-events.service';
 
-const BCRYPT_SALT_ROUNDS = 10;
-
 /**
  * Handles write use cases for users.
  */
@@ -21,13 +19,14 @@ export class UsersWriteService {
   constructor(
     private readonly _usersRepository: UsersRepository,
     private readonly _usersEventsService: UsersEventsService,
+    private readonly _passwordHashService: PasswordHashService,
     private readonly _logger: PinoLogger,
   ) {
     this._logger.setContext(UsersWriteService.name);
   }
 
   async createUser(payload: CreateUserInput): Promise<UserEntity> {
-    const passwordHash = await hash(payload.password, BCRYPT_SALT_ROUNDS);
+    const passwordHash = await this._passwordHashService.hashPassword(payload.password);
 
     let createdUser: UserEntity;
     try {

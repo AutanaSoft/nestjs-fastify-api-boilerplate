@@ -4,6 +4,6 @@
 export enum EmailAuthPath {
   LOGIN = '/auth/sign-in',
   REGISTER = '/auth/sign-up',
-  CONFIRM_EMAIL = '/auth/confirm-email',
-  RESET_PASSWORD = '/auth/forgot-password',
+  VERIFY_EMAIL = '/auth/verify-email',
+  RESET_PASSWORD = '/auth/reset-password',
 }

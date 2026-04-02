@@ -1,11 +1,21 @@
-import { UserRole, UserStatus } from '@/modules/database/prisma/generated/enums';
 import { z } from 'zod';
 
-/** User roles enum schema (uses native TypeScript enum from Prisma) */
-export const UserRolesEnumSchema = z.enum(UserRole);
+export const USER_ROLES = ['ADMIN', 'USER', 'GUEST'] as const;
 
-/** User status enum schema (uses native TypeScript enum from Prisma) */
-export const UserStatusEnumSchema = z.enum(UserStatus);
+export const USER_STATUSES = [
+  'REGISTERED',
+  'ACTIVE',
+  'BANNED',
+  'PENDING_PAYMENT',
+  'PAYMENT_FROZEN',
+  'FROZEN',
+] as const;
+
+/** User roles enum schema. */
+export const UserRolesEnumSchema = z.enum(USER_ROLES);
+
+/** User status enum schema. */
+export const UserStatusEnumSchema = z.enum(USER_STATUSES);
 
 /** Base rules for UUID identifiers. */
 export const UuidSchema = z.uuid({ message: 'id must be a valid UUID' });

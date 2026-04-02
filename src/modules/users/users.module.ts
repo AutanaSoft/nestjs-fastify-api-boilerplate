@@ -1,4 +1,5 @@
 import { DatabaseModule } from '@modules/database/database.module';
+import { SecurityModule } from '@modules/security/security.module';
 import { Module } from '@nestjs/common';
 import { UsersController } from './controllers';
 import { PrismaUsersRepository, UsersRepository } from './repositories';
@@ -10,7 +11,7 @@ import {
 } from './services';
 
 @Module({
-  imports: [DatabaseModule],
+  imports: [DatabaseModule, SecurityModule],
   controllers: [UsersController],
   providers: [
     UsersWriteService,

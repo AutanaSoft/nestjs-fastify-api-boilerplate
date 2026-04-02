@@ -29,6 +29,8 @@ model UserDbEntity {
   createdAt       DateTime   @default(now()) @map("created_at") @db.Timestamptz()
   updatedAt       DateTime   @updatedAt @map("updated_at") @db.Timestamptz()
 
+  authSessions AuthSessionDbEntity[]
+
   @@index([email])
   @@index([userName])
   @@index([emailVerifiedAt])

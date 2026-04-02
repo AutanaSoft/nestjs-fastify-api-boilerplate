@@ -24,7 +24,9 @@
 
 - Framework: NestJS + TypeScript.
 - HTTP server: Fastify.
-- Database: PostgreSQL with Prisma or Drizzle.
+- Authentication: `@nestjs/passport`, `passport`, `@nestjs/jwt`, `passport-jwt`.
+- WebSockets: `@nestjs/websockets`, `@nestjs/platform-socket.io`.
+- Database: PostgreSQL with Prisma.
 - Validation: Zod + `nestjs-zod`.
 - Testing: Jest + Supertest.
 - Package manager: `pnpm` only.
@@ -35,15 +37,23 @@
 
 - Follow layered architecture: `Controller -> Services -> Repository`.
 - Organize by feature module.
-- Keep database access centralized under `src/modules/database/**`.
+- Keep ORM client wiring under `src/modules/database/**` and restrict ORM usage to concrete repository implementations (for example `src/modules/<module>/repositories/prisma-*.repository.ts`).
 - Never edit generated Prisma files under `src/modules/database/prisma/generated/**`.
+- Never import Prisma generated types/enums in controllers, services, DTOs, schemas, or interfaces. Prisma generated artifacts are allowed only in concrete persistence implementations.
+- Follow a schema-first contract model with Zod.
 - Validate all external inputs (`body`, `query`, `params`) with Zod DTOs.
 - Serialize API responses with `createZodDto` + `@ZodSerializerDto(...)`.
+- Export only Zod schemas from `schemas/**`.
+- In `interfaces/**`, define exported `type`/`interface` as aliases inferred from schemas (`z.infer`, `z.input`, `z.output`).
+- Avoid manually defining exported contract types that duplicate a Zod schema shape.
+- Validate untrusted boundary payloads (for example decoded JWTs, event payloads, queue messages) with their Zod schemas before use.
 - Never return raw DB entities directly to clients.
 - Use constructor injection (no service locator pattern).
-- Throw HTTP exceptions from services when needed.
+- Application services that serve HTTP use cases must throw `HttpException` types. Internal domain/token services may throw module domain/persistence errors, which must be translated to `HttpException` at the orchestration service boundary.
 - Use `nestjs-pino` for runtime logs; do not use `console.log`.
-- Keep catch blocks typed as `unknown`; narrow with `instanceof Error` before reading error properties.
+- Keep catch blocks typed as `unknown`; narrow with `instanceof Error` before reading error properties. Passing `unknown` as structured log metadata is allowed when no properties are accessed.
+- Document code with TSDoc (JSDoc-compatible) in English for public classes and public methods in controllers, services, repositories, guards, strategies, decorators, and exported functions.
+- Add concise code comments in English for sensitive, non-obvious, or complex logic.
 - Never commit secrets.
 
 ### SHOULD
@@ -54,7 +64,6 @@
 - Prefer `import type` for type-only imports.
 - Prefer explicit types when inference is unclear.
 - Use guard clauses over deep nesting.
-- Document non-trivial public methods/classes with JSDoc.
 - Run minimum relevant checks (`lint`/tests) for touched areas.
 
 ### MAY
@@ -74,7 +83,7 @@
 
 - Controllers: `SubjectController` (for example `UsersController`).
 - Services: either `SubjectService` or split by responsibility
-  (for example `UsersReadService`, `UsersWriteService`, `UsersSecurityService`, `UsersEventsService`).
+  (for example `UsersCreateService`, `UsersUpdateService`, `UsersDeleteService`).
 - Repositories: `SubjectRepository` (for example `UsersRepository`).
 - Entities/Models: `Subject` (for example `User`).
 - DTOs: `ActionSubjectDto` (for example `CreateUserDto`).
@@ -84,11 +93,11 @@
 - Use `src/modules/users/**` as the canonical pattern for new modules and refactors.
 - Replicate:
   - Layering: `Controller -> Services -> Repository`.
-  - Service split by use case type (`read/write/security/events` when applicable).
+  - Service split by use case type (`create/update/delete` when applicable).
   - One module DTO barrel: `<module>.dto.ts`.
   - Zod input/output schemas + serializer DTOs.
   - Abstract repository contract + one persistence implementation bound in module providers.
-  - Module-local persistence error helper under `errors/`.
+  - Module-local persistence error strategy under `errors/` (helper-based mapping or typed persistence error classes).
 - Do not introduce a different module structure unless explicitly requested.
 
 ## 9. Commands
