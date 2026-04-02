@@ -3,6 +3,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import type { ConfigType } from '@nestjs/config';
 import { Inject } from '@nestjs/common';
+import { PinoLogger } from 'nestjs-pino';
 import { TokenType } from '../enum';
 import type {
   JwtCustomPayload,
@@ -21,8 +22,17 @@ export class JwtTokenService {
     @Inject(authConfig.KEY)
     private readonly _config: ConfigType<typeof authConfig>,
     private readonly _jwtService: JwtService,
-  ) {}
+    private readonly _logger: PinoLogger,
+  ) {
+    this._logger.setContext(JwtTokenService.name);
+  }
 
+  /**
+   * Signs an access token from validated auth claims.
+   *
+   * @param payload Access token claims contract.
+   * @returns Signed token plus creation and expiration metadata.
+   */
   async signAccessToken(payload: SignAccessTokenInput): Promise<SignedAccessToken> {
     const createdAt = new Date();
     const token = await this._jwtService.signAsync(
@@ -45,11 +55,14 @@ export class JwtTokenService {
     };
   }
 
+  /**
+   * Signs a custom-purpose token (email verification or password reset).
+   *
+   * @param payload Custom token input contract.
+   * @returns Signed custom token string.
+   */
   async signCustomToken(payload: SignCustomTokenInput): Promise<string> {
-    const ttl =
-      payload.purpose === TokenType.VERIFY_EMAIL
-        ? this._config.AUTH_VERIFY_EMAIL_TOKEN_TTL
-        : this._config.AUTH_RESET_PASSWORD_TOKEN_TTL;
+    const ttl = this.resolveCustomTokenTtl(payload.purpose);
 
     return this._jwtService.signAsync(
       {
@@ -68,33 +81,52 @@ export class JwtTokenService {
     );
   }
 
+  /**
+   * Verifies and validates a custom-purpose token payload.
+   *
+   * @param token Signed token string.
+   * @returns Decoded and schema-validated custom token payload.
+   * @throws {UnauthorizedException} When token signature/claims are invalid or payload shape is invalid.
+   */
   async verifyCustomToken(token: string): Promise<JwtCustomPayload> {
-    const decodedPayload: unknown = await this._jwtService.verifyAsync(token, {
-      secret: this._config.AUTH_JWT_SECRET,
-      issuer: this._config.AUTH_JWT_ISSUER,
-      audience: this._config.AUTH_JWT_AUDIENCE,
-    });
+    try {
+      const decodedPayload: unknown = await this._jwtService.verifyAsync(token, {
+        secret: this._config.AUTH_JWT_SECRET,
+        issuer: this._config.AUTH_JWT_ISSUER,
+        audience: this._config.AUTH_JWT_AUDIENCE,
+      });
 
-    const parsedPayload = JwtCustomPayloadSchema.safeParse(decodedPayload);
-
-    if (!parsedPayload.success) {
+      return JwtCustomPayloadSchema.parse(decodedPayload);
+    } catch (error: unknown) {
+      this._logger.warn({ error }, 'Custom token verification failed');
       throw new UnauthorizedException('Invalid token payload');
     }
+  }
 
-    return parsedPayload.data;
+  private resolveCustomTokenTtl(purpose: SignCustomTokenInput['purpose']): string {
+    if (purpose === TokenType.VERIFY_EMAIL) {
+      return this._config.AUTH_VERIFY_EMAIL_TOKEN_TTL;
+    }
+
+    return this._config.AUTH_RESET_PASSWORD_TOKEN_TTL;
   }
 
   private extractExpirationDate(token: string): Date {
-    const payload = this._jwtService.verify<{ exp: number }>(token, {
-      secret: this._config.AUTH_JWT_SECRET,
-      issuer: this._config.AUTH_JWT_ISSUER,
-      audience: this._config.AUTH_JWT_AUDIENCE,
-    });
+    try {
+      const payload = this._jwtService.verify<{ exp: number }>(token, {
+        secret: this._config.AUTH_JWT_SECRET,
+        issuer: this._config.AUTH_JWT_ISSUER,
+        audience: this._config.AUTH_JWT_AUDIENCE,
+      });
 
-    if (typeof payload.exp !== 'number') {
+      if (typeof payload.exp !== 'number') {
+        throw new UnauthorizedException('Invalid generated token');
+      }
+
+      return new Date(payload.exp * 1_000);
+    } catch (error: unknown) {
+      this._logger.error({ error }, 'Generated access token expiration extraction failed');
       throw new UnauthorizedException('Invalid generated token');
     }
-
-    return new Date(payload.exp * 1_000);
   }
 }
