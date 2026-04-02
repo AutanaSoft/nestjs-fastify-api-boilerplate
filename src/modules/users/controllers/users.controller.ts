@@ -21,8 +21,15 @@ import {
   UpdateUserDto,
   UserModelDto,
 } from '../dto';
-import { UserEntity } from '../schemas';
-import { UsersReadService, UsersSecurityService, UsersWriteService } from '../services';
+import type { UserEntity } from '../interfaces';
+import {
+  UsersCreateService,
+  UsersGetByEmailService,
+  UsersGetByIdService,
+  UsersListService,
+  UsersUpdatePasswordService,
+  UsersUpdateService,
+} from '../services';
 
 /**
  * HTTP entry controller for users module operations.
@@ -31,9 +38,12 @@ import { UsersReadService, UsersSecurityService, UsersWriteService } from '../se
 @Controller('users')
 export class UsersController {
   constructor(
-    private readonly _usersWriteService: UsersWriteService,
-    private readonly _usersReadService: UsersReadService,
-    private readonly _usersSecurityService: UsersSecurityService,
+    private readonly _usersCreateService: UsersCreateService,
+    private readonly _usersUpdateService: UsersUpdateService,
+    private readonly _usersUpdatePasswordService: UsersUpdatePasswordService,
+    private readonly _usersGetByEmailService: UsersGetByEmailService,
+    private readonly _usersGetByIdService: UsersGetByIdService,
+    private readonly _usersListService: UsersListService,
   ) {}
 
   /**
@@ -45,7 +55,7 @@ export class UsersController {
   @ApiOperation({ summary: 'Create user' })
   @ApiResponse({ status: HttpStatus.CREATED, type: UserModelDto })
   async createUser(@Body() payload: CreateUserDto): Promise<UserEntity> {
-    return this._usersWriteService.createUser(payload);
+    return this._usersCreateService.createUser(payload);
   }
 
   /**
@@ -60,7 +70,7 @@ export class UsersController {
     @Param() params: GetUserByIdParamsDto,
     @Body() payload: UpdateUserDto,
   ): Promise<UserEntity> {
-    return this._usersWriteService.updateUser(params.id, payload);
+    return this._usersUpdateService.updateUser(params.id, payload);
   }
 
   /**
@@ -74,18 +84,7 @@ export class UsersController {
     @Param() params: GetUserByIdParamsDto,
     @Body() payload: UpdatePasswordDto,
   ): Promise<void> {
-    await this._usersSecurityService.updatePassword(params.id, payload);
-  }
-
-  /**
-   * Marks a user email as verified.
-   */
-  @Patch('verify/by-email/:email')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Verify user email' })
-  @ApiResponse({ status: HttpStatus.NO_CONTENT })
-  async verifyEmail(@Param() params: GetUserByEmailParamsDto): Promise<void> {
-    await this._usersSecurityService.verifyEmail(params.email);
+    await this._usersUpdatePasswordService.updatePassword(params.id, payload);
   }
 
   /**
@@ -97,7 +96,7 @@ export class UsersController {
   @ApiOperation({ summary: 'Get user by email' })
   @ApiResponse({ status: HttpStatus.OK, type: UserModelDto })
   async getUserByEmail(@Param() params: GetUserByEmailParamsDto): Promise<UserEntity> {
-    return this._usersReadService.getUserByEmail(params.email);
+    return this._usersGetByEmailService.getUserByEmail(params.email);
   }
 
   /**
@@ -109,7 +108,7 @@ export class UsersController {
   @ApiOperation({ summary: 'Get user by id' })
   @ApiResponse({ status: HttpStatus.OK, type: UserModelDto })
   async getUserById(@Param() params: GetUserByIdParamsDto): Promise<UserEntity> {
-    return this._usersReadService.getUserById(params.id);
+    return this._usersGetByIdService.getUserById(params.id);
   }
 
   /**
@@ -121,6 +120,6 @@ export class UsersController {
   @ApiOperation({ summary: 'Get users' })
   @ApiResponse({ status: HttpStatus.OK, type: GetUsersResponseDto })
   async getUsers(@Query() payload: GetUsersQueryDto): Promise<GetUsersResponseDto> {
-    return this._usersReadService.getUsers(payload);
+    return this._usersListService.getUsers(payload);
   }
 }

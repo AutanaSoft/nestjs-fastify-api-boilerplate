@@ -1,6 +1,11 @@
-import { mapPrismaErrorToHttpException } from '@database/errors';
-import { InternalServerErrorException } from '@nestjs/common';
+import { ConflictException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import type { PinoLogger } from 'nestjs-pino';
+import {
+  UsersContractValidationError,
+  UsersPersistenceNotFoundError,
+  UsersPersistenceUnexpectedError,
+  UsersPersistenceUniqueConstraintError,
+} from './users-persistence.errors';
 
 type HandleUsersPersistenceErrorInput = {
   error: unknown;
@@ -10,7 +15,7 @@ type HandleUsersPersistenceErrorInput = {
 };
 
 /**
- * Maps persistence errors to HTTP exceptions for the users module.
+ * Maps users persistence-layer errors to HTTP exceptions.
  * Falls back to a generic internal error while preserving detailed logs.
  */
 export function handleUsersPersistenceError({
@@ -19,13 +24,20 @@ export function handleUsersPersistenceError({
   fallbackMessage,
   userId,
 }: HandleUsersPersistenceErrorInput): never {
-  const mappedException = mapPrismaErrorToHttpException(error, {
-    uniqueConstraintMessage: 'Email or userName is already in use',
-    notFoundMessage: userId ? `User ${userId} not found` : 'User not found',
-  });
+  if (error instanceof UsersPersistenceUniqueConstraintError) {
+    throw new ConflictException(error.message);
+  }
 
-  if (mappedException) {
-    throw mappedException;
+  if (error instanceof UsersPersistenceNotFoundError) {
+    throw new NotFoundException(userId ? `User ${userId} not found` : error.message);
+  }
+
+  if (
+    error instanceof UsersContractValidationError ||
+    error instanceof UsersPersistenceUnexpectedError
+  ) {
+    logger.error({ error, userId }, fallbackMessage);
+    throw new InternalServerErrorException('Internal server error');
   }
 
   logger.error({ error, userId }, fallbackMessage);

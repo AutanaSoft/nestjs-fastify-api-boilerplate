@@ -1,7 +1,7 @@
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import request from 'supertest';
 import { randomUUID } from 'node:crypto';
-import { UserRole, UserStatus } from '@/modules/database/prisma/generated/enums';
+import { UserRoles, UserStatus } from '@/modules/users/constants';
 import { createUserPayloadBase } from '../../utils/test-constants';
 import type { UsersE2EContext } from './users.e2e.types';
 
@@ -113,12 +113,12 @@ export const usersUpdateSuite = (
       it('should update user role', async () => {
         await request(app.getHttpServer())
           .patch(`/users/${createdUserId}`)
-          .send({ role: UserRole.ADMIN })
+          .send({ role: UserRoles.ADMIN })
           .expect(200)
           .expect((res) => {
             const body = res.body as Record<string, unknown>;
             expect(body.id).toBe(createdUserId);
-            expect(body.role).toBe(UserRole.ADMIN);
+            expect(body.role).toBe(UserRoles.ADMIN);
             expect(body.password).toBeUndefined();
           });
       });
@@ -144,7 +144,7 @@ export const usersUpdateSuite = (
           .patch(`/users/${createdUserId}`)
           .send({
             userName: updatedUserName,
-            role: UserRole.GUEST,
+            role: UserRoles.GUEST,
             status: UserStatus.FROZEN,
           })
           .expect(200)
@@ -152,7 +152,7 @@ export const usersUpdateSuite = (
             const body = res.body as Record<string, unknown>;
             expect(body.id).toBe(createdUserId);
             expect(body.userName).toBe(updatedUserName);
-            expect(body.role).toBe(UserRole.GUEST);
+            expect(body.role).toBe(UserRoles.GUEST);
             expect(body.status).toBe(UserStatus.FROZEN);
             expect(body.password).toBeUndefined();
           });

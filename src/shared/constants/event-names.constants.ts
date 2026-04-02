@@ -24,7 +24,5 @@ export const EVENT_NAMES = {
     UPDATED: 'user.updated',
     /** Fired when a user changes their password. */
     UPDATED_PASSWORD: 'user.updated.password',
-    /** Fired when a user successfully verifies their email address. */
-    VERIFIED_EMAIL: 'user.verified.email',
   },
 } as const;

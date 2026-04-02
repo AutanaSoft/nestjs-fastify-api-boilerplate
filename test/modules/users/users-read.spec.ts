@@ -1,7 +1,8 @@
+import { PrismaService } from '@/modules/database/services/prisma.service';
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import request from 'supertest';
 import { randomUUID } from 'node:crypto';
-import { UserRole, UserStatus } from '@/modules/database/prisma/generated/enums';
+import { UserRoles, UserStatus } from '@/modules/users/constants';
 import { createUserPayloadBase } from '../../utils/test-constants';
 import type { UsersE2EContext } from './users.e2e.types';
 
@@ -14,6 +15,7 @@ export const usersReadSuite = (getApp: () => NestFastifyApplication, context: Us
 
     beforeAll(async () => {
       app = getApp();
+      const prisma = app.get<PrismaService>(PrismaService);
 
       const [firstCreatedUserId] = context.createdUserIds;
       if (!firstCreatedUserId) {
@@ -31,7 +33,7 @@ export const usersReadSuite = (getApp: () => NestFastifyApplication, context: Us
           ...createUserPayloadBase,
           email: verifiedAdminUserEmail,
           userName: `admin-${verifiedSuffix}`,
-          role: UserRole.ADMIN,
+          role: UserRoles.ADMIN,
           status: UserStatus.ACTIVE,
         })
         .expect(201)
@@ -40,9 +42,10 @@ export const usersReadSuite = (getApp: () => NestFastifyApplication, context: Us
           context.createdUserIds.push(body.id as string);
         });
 
-      await request(app.getHttpServer())
-        .patch(`/users/verify/by-email/${verifiedAdminUserEmail}`)
-        .expect(204);
+      await prisma.userDbEntity.update({
+        where: { email: verifiedAdminUserEmail },
+        data: { emailVerifiedAt: new Date() },
+      });
 
       const unverifiedSuffix = randomUUID().slice(0, 4);
       unverifiedGuestUserEmail = `${unverifiedSuffix}-guest-${createUserPayloadBase.email}`;
@@ -53,7 +56,7 @@ export const usersReadSuite = (getApp: () => NestFastifyApplication, context: Us
           ...createUserPayloadBase,
           email: unverifiedGuestUserEmail,
           userName: `guest-${unverifiedSuffix}`,
-          role: UserRole.GUEST,
+          role: UserRoles.GUEST,
           status: UserStatus.FROZEN,
         })
         .expect(201)
@@ -182,13 +185,13 @@ export const usersReadSuite = (getApp: () => NestFastifyApplication, context: Us
 
       it('should filter users by role', async () => {
         await request(app.getHttpServer())
-          .get(`/users?skip=0&take=10&role=${UserRole.ADMIN}&email=${verifiedAdminUserEmail}`)
+          .get(`/users?skip=0&take=10&role=${UserRoles.ADMIN}&email=${verifiedAdminUserEmail}`)
           .expect(200)
           .expect((res) => {
             const body = res.body as Record<string, unknown>;
             const data = body.data as Array<Record<string, unknown>>;
             expect(data.length).toBeGreaterThan(0);
-            expect(data.every((user) => user.role === UserRole.ADMIN)).toBe(true);
+            expect(data.every((user) => user.role === UserRoles.ADMIN)).toBe(true);
             expect(data.some((user) => user.email === verifiedAdminUserEmail)).toBe(true);
           });
       });

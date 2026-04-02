@@ -3,20 +3,18 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { UserRoles, UserStatus } from '../constants';
 import { Test, type TestingModule } from '@nestjs/testing';
 import { PasswordHashService } from '@modules/security/services';
-import { UserRole, UserStatus } from '@/modules/database/prisma/generated/enums';
 import { PinoLogger } from 'nestjs-pino';
 import { UsersRepository } from '../repositories';
 import { UsersEventsService } from './users-events.service';
-import { UsersSecurityService } from './users-security.service';
+import { UsersUpdatePasswordService } from './users-update-password.service';
 
-describe('UsersSecurityService', () => {
-  let service: UsersSecurityService;
+describe('UsersUpdatePasswordService', () => {
+  let service: UsersUpdatePasswordService;
   let usersRepository: jest.Mocked<UsersRepository>;
-  let usersEventsService: jest.Mocked<
-    Pick<UsersEventsService, 'emitUserPasswordUpdated' | 'emitUserEmailVerified'>
-  >;
+  let usersEventsService: jest.Mocked<Pick<UsersEventsService, 'emitUserPasswordUpdated'>>;
   let passwordHashService: jest.Mocked<
     Pick<PasswordHashService, 'verifyPassword' | 'hashPassword'>
   >;
@@ -27,7 +25,7 @@ describe('UsersSecurityService', () => {
     email: 'test@example.com',
     userName: 'test-user',
     password: 'hashed-password',
-    role: UserRole.USER,
+    role: UserRoles.USER,
     status: UserStatus.ACTIVE,
     emailVerifiedAt: null,
     createdAt: new Date('2026-01-01T00:00:00.000Z'),
@@ -42,12 +40,10 @@ describe('UsersSecurityService', () => {
       findMany: jest.fn(),
       updateById: jest.fn(),
       updatePassword: jest.fn(),
-      verifyEmail: jest.fn(),
     };
 
     usersEventsService = {
       emitUserPasswordUpdated: jest.fn(),
-      emitUserEmailVerified: jest.fn(),
     };
 
     passwordHashService = {
@@ -62,7 +58,7 @@ describe('UsersSecurityService', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        UsersSecurityService,
+        UsersUpdatePasswordService,
         { provide: UsersRepository, useValue: usersRepository },
         { provide: UsersEventsService, useValue: usersEventsService },
         { provide: PasswordHashService, useValue: passwordHashService },
@@ -70,7 +66,7 @@ describe('UsersSecurityService', () => {
       ],
     }).compile();
 
-    service = module.get<UsersSecurityService>(UsersSecurityService);
+    service = module.get<UsersUpdatePasswordService>(UsersUpdatePasswordService);
   });
 
   afterEach(() => {
@@ -140,24 +136,5 @@ describe('UsersSecurityService', () => {
         confirm: 'new',
       } as never),
     ).rejects.toThrow(InternalServerErrorException);
-  });
-
-  it('should verify email and emit event', async () => {
-    usersRepository.verifyEmail.mockResolvedValue({
-      ...baseUser,
-      emailVerifiedAt: new Date('2026-01-02T00:00:00.000Z'),
-    } as never);
-
-    await expect(service.verifyEmail(baseUser.email as never)).resolves.toBeUndefined();
-    expect(usersEventsService.emitUserEmailVerified).toHaveBeenCalled();
-  });
-
-  it('should throw InternalServerErrorException when verifyEmail output is invalid', async () => {
-    usersRepository.verifyEmail.mockResolvedValue({ ...baseUser, email: 'invalid-email' } as never);
-
-    await expect(service.verifyEmail(baseUser.email as never)).rejects.toThrow(
-      InternalServerErrorException,
-    );
-    expect(logger.error).toHaveBeenCalled();
   });
 });

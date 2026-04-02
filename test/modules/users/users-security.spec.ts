@@ -100,35 +100,5 @@ export const usersSecuritySuite = (
         currentPassword = nextPassword;
       });
     });
-
-    describe('PATCH /users/verify/by-email/:email', () => {
-      it('should return 400 when email param format is invalid', async () => {
-        await request(app.getHttpServer())
-          .patch('/users/verify/by-email/invalid-email')
-          .expect(400);
-      });
-
-      it('should return 404 when user by email does not exist', async () => {
-        await request(app.getHttpServer())
-          .patch('/users/verify/by-email/not-found-user@example.com')
-          .expect(404);
-      });
-
-      it('should verify email and keep user contract sanitized', async () => {
-        await request(app.getHttpServer())
-          .patch(`/users/verify/by-email/${createUserPayloadBase.email}`)
-          .expect(204);
-
-        await request(app.getHttpServer())
-          .get(`/users/by-email/${createUserPayloadBase.email}`)
-          .expect(200)
-          .expect((res) => {
-            const body = res.body as Record<string, unknown>;
-            expect(body.id).toBe(createdUserId);
-            expect(body.emailVerifiedAt).not.toBeNull();
-            expect(body.password).toBeUndefined();
-          });
-      });
-    });
   });
 };
