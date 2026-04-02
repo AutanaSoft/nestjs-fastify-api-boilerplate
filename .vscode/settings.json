@@ -11,6 +11,7 @@
     "postgres",
     "postgresql",
     "rhel",
+    "smhd",
     "swcrc",
     "Timestamptz",
     "uuid"
