@@ -1,11 +1,18 @@
+import { isKnownPrismaError } from '@database/errors';
 import { PrismaService } from '@modules/database/services/prisma.service';
-import { InternalServerErrorException, Injectable } from '@nestjs/common';
-import { mapPrismaErrorToHttpException } from '@database/errors';
+import { Injectable } from '@nestjs/common';
+import { ZodError } from 'zod';
+import {
+  AuthContractValidationError,
+  AuthPersistenceNotFoundError,
+  AuthPersistenceUnexpectedError,
+  AuthPersistenceUniqueConstraintError,
+} from '../errors';
 import type {
   AuthRefreshTokenEntity,
   AuthRefreshTokenWithSession,
   AuthSessionEntity,
-  CreateAuthUserInput,
+  CreateAuthUserData,
   CreateRefreshTokenInput,
   UserAuthEntity,
 } from '../interfaces';
@@ -17,30 +24,53 @@ import {
 } from '../schemas';
 import { AuthRepository } from './auth.repository';
 
+const PRISMA_UNIQUE_CONSTRAINT = 'P2002';
+const PRISMA_NOT_FOUND = 'P2025';
+
 @Injectable()
 export class PrismaAuthRepository extends AuthRepository {
   constructor(private readonly _prismaService: PrismaService) {
     super();
   }
 
-  async createUser(payload: CreateAuthUserInput): Promise<UserAuthEntity> {
+  /**
+   * Persists a new auth user using Prisma and returns the domain-safe entity.
+   *
+   * @param payload Data contract required to create the user in persistence.
+   * @returns Persisted user adapted to the auth domain entity contract.
+   * @throws {AuthContractValidationError} When persisted data does not match the schema contract.
+   * @throws {AuthPersistenceUniqueConstraintError} When email or userName violates unique constraints.
+   * @throws {AuthPersistenceNotFoundError} When Prisma reports missing dependent resources.
+   * @throws {AuthPersistenceUnexpectedError} For any non-mapped persistence failure.
+   */
+  async createUser(payload: CreateAuthUserData): Promise<UserAuthEntity> {
     try {
       const createdUser = await this._prismaService.userDbEntity.create({
         data: payload,
       });
 
+      // Enforce repository output contract before exposing data to the service layer.
       return UserAuthEntitySchema.parse(createdUser);
     } catch (error: unknown) {
-      const mappedException = mapPrismaErrorToHttpException(error, {
-        uniqueConstraintMessage: 'Email or userName is already in use',
-        notFoundMessage: 'Resource not found',
-      });
-
-      if (mappedException) {
-        throw mappedException;
+      if (error instanceof ZodError) {
+        throw new AuthContractValidationError('Persisted user contract validation failed', error);
       }
 
-      throw new InternalServerErrorException('Internal server error');
+      // Normalize ORM-specific errors into repository-level persistence errors.
+      if (isKnownPrismaError(error)) {
+        if (error.code === PRISMA_UNIQUE_CONSTRAINT) {
+          throw new AuthPersistenceUniqueConstraintError(
+            'Email or userName is already in use',
+            error,
+          );
+        }
+
+        if (error.code === PRISMA_NOT_FOUND) {
+          throw new AuthPersistenceNotFoundError('Resource not found', error);
+        }
+      }
+
+      throw new AuthPersistenceUnexpectedError('Unexpected persistence error', error);
     }
   }
 

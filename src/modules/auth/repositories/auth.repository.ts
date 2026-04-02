@@ -2,13 +2,13 @@ import type {
   AuthRefreshTokenEntity,
   AuthRefreshTokenWithSession,
   AuthSessionEntity,
-  CreateAuthUserInput,
+  CreateAuthUserData,
   CreateRefreshTokenInput,
   UserAuthEntity,
 } from '../interfaces';
 
 export abstract class AuthRepository {
-  abstract createUser(payload: CreateAuthUserInput): Promise<UserAuthEntity>;
+  abstract createUser(payload: CreateAuthUserData): Promise<UserAuthEntity>;
   abstract findUserById(id: string): Promise<UserAuthEntity | null>;
   abstract findUserByEmail(email: string): Promise<UserAuthEntity | null>;
   abstract findUserByUserName(userName: string): Promise<UserAuthEntity | null>;

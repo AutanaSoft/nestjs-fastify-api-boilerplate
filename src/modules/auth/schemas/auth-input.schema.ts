@@ -1,6 +1,5 @@
 import { EmailSchema, PasswordSchema, UserNameSchema } from '@/shared/schemas';
 import { z } from 'zod';
-import { UserRoleSchema, UserStatusSchema, USER_ROLES, USER_STATUSES } from './auth-user.schema';
 
 /** Input schema for sign-up. */
 export const SignUpInputSchema = z.object({
@@ -51,8 +50,6 @@ export const ResetPasswordInputSchema = z
   });
 
 /** Input schema for auth repository create user operation. */
-export const CreateAuthUserInputSchema = SignUpInputSchema.extend({
+export const CreateAuthUserDataSchema = SignUpInputSchema.extend({
   password: z.string().min(1),
-  role: UserRoleSchema.default(USER_ROLES.USER),
-  status: UserStatusSchema.default(USER_STATUSES.REGISTERED),
 });
