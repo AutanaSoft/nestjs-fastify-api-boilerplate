@@ -62,7 +62,7 @@ export class SmtpEmailAdapter {
 
       const transporter = this._getTransporter(config);
       const info = (await transporter.sendMail({
-        from: `AutanaSoft<${defaultFrom}>`,
+        from: defaultFrom,
         to: data.to,
         subject: data.subject,
         html: data.html,

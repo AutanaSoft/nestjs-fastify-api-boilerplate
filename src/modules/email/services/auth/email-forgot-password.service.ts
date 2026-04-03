@@ -51,7 +51,7 @@ export class EmailForgotPasswordService {
       // 4. Dispatch email
       await this._emailSender.send({
         to: payload.to,
-        subject: 'Reset your password - AutanaSoft',
+        subject: 'Reset your password',
         html,
       });
 

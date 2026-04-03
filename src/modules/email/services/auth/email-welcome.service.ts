@@ -44,7 +44,7 @@ export class EmailWelcomeService {
       // 3. Dispatch through infrastructure sender
       await this._emailSender.send({
         to: payload.to,
-        subject: '¡Bienvenido a AutanaSoft!',
+        subject: 'Welcome to our platform!',
         html,
       });
 

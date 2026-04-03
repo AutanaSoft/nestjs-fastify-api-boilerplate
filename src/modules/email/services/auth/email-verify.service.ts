@@ -51,7 +51,7 @@ export class EmailVerifyService {
       // 4. Dispatch email
       await this._emailSender.send({
         to: payload.to,
-        subject: 'Confirm your email address - AutanaSoft',
+        subject: 'Confirm your email address',
         html,
       });
 
