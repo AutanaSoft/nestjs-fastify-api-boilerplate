@@ -30,19 +30,3 @@ export const EmailInputSchema = z.object({
 export const EmailTokenInputSchema = EmailInputSchema.extend({
   token: z.string().min(1, 'JWT token is required'),
 });
-
-/**
- * Validation schema for email delivery response payload.
- */
-export const EmailResponseSchema = z.object({
-  /**
-   * Delivery status.
-   * @example 'success'
-   */
-  status: z.enum(['success', 'error']).describe('Email delivery status'),
-  /**
-   * Response message.
-   * @example 'Email sent successfully'
-   */
-  message: z.string().describe('Response message'),
-});

@@ -17,7 +17,6 @@ import { ResendEmailAdapter } from './adapters/resend-email.adapter';
 
 @Module({
   imports: [SettingsModule],
-  controllers: [],
   providers: [
     EmailTemplateProvider,
     SmtpEmailAdapter,
