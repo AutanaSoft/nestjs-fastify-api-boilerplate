@@ -6,9 +6,6 @@ import {
 } from '@modules/auth/events';
 import type { EmailPayload, EmailTokenPayload } from '@modules/auth/interfaces';
 import { EmailPayloadSchema, EmailTokenPayloadSchema } from '@modules/auth/schemas';
-import { UserCreatedEvent } from '@modules/users/events';
-import type { UserEventPayload } from '@modules/users/interfaces';
-import { UserEventPayloadSchema } from '@modules/users/schemas';
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { EVENT_NAMES } from '@shared/constants/event-names.constants';
@@ -22,10 +19,8 @@ import { EmailWelcomeService } from '../services/auth/email-welcome.service';
  * Centralized Domain Event Listener for the Email module.
  *
  * Why this architecture?
- * By listening natively to auth and user domain events,
- * this module avoids tight coupling with the users module (ensuring SRP). The Email module is
- * 100% reactive, determining background email flows without requiring imperative
- * commands from other contexts (Fire and Forget).
+ * By listening natively to auth tokenized events, this module avoids coupling
+ * to token orchestration concerns from other bounded contexts.
  */
 @Injectable()
 export class EmailEventsListener {
@@ -59,27 +54,6 @@ export class EmailEventsListener {
     const payload = { to: email, name: userName };
 
     await this._verifyEmailService.sendVerifyEmail({ ...payload, token });
-  }
-
-  /**
-   * Handles user creation event and sends welcome email.
-   *
-   * @param {UserCreatedEvent} event User created event payload.
-   */
-  @OnEvent(EVENT_NAMES.USER.CREATED, { async: true })
-  async handleUserCreated(event: UserCreatedEvent): Promise<void> {
-    const userPayload = this._parseUserPayload(event.payload, EVENT_NAMES.USER.CREATED);
-
-    if (!userPayload) {
-      return;
-    }
-
-    const { email, userName } = userPayload;
-
-    await this._welcomeEmailService.sendWelcomeEmail({
-      to: email,
-      name: userName,
-    });
   }
 
   /**
@@ -184,27 +158,6 @@ export class EmailEventsListener {
       this._logger.error(
         { eventName, payload, error: parsedPayload.error },
         'Received invalid auth event payload',
-      );
-      return null;
-    }
-
-    return parsedPayload.data;
-  }
-
-  /**
-   * Parses and validates a user event payload with id + email + userName.
-   *
-   * @param {unknown} payload Raw event payload.
-   * @param {string} eventName Domain event name.
-   * @returns {UserEventPayload | null} Parsed payload when valid, otherwise `null`.
-   */
-  private _parseUserPayload(payload: unknown, eventName: string): UserEventPayload | null {
-    const parsedPayload = UserEventPayloadSchema.safeParse(payload);
-
-    if (!parsedPayload.success) {
-      this._logger.error(
-        { eventName, payload, error: parsedPayload.error },
-        'Received invalid user event payload',
       );
       return null;
     }

@@ -4,7 +4,6 @@ import {
   AuthPasswordResetRequestedEvent,
   AuthUserRegisteredEvent,
 } from '@modules/auth/events';
-import { UserCreatedEvent } from '@modules/users/events';
 import { EVENT_NAMES } from '@shared/constants/event-names.constants';
 import { Test, type TestingModule } from '@nestjs/testing';
 import { PinoLogger } from 'nestjs-pino';
@@ -80,22 +79,6 @@ describe('EmailEventsListener', () => {
     expect(logger.error).not.toHaveBeenCalled();
   });
 
-  it('should process USER.CREATED event when payload is valid', async () => {
-    await listener.handleUserCreated(
-      new UserCreatedEvent({
-        id: '550e8400-e29b-41d4-a716-446655440000',
-        email: 'test@example.com',
-        userName: 'test-user',
-      }),
-    );
-
-    expect(welcomeEmailService.sendWelcomeEmail).toHaveBeenCalledWith({
-      to: 'test@example.com',
-      name: 'test-user',
-    });
-    expect(logger.error).not.toHaveBeenCalled();
-  });
-
   it('should bubble service error for USER_REGISTERED without duplicate listener error logs', async () => {
     verifyEmailService.sendVerifyEmail.mockRejectedValue(new Error('service failure'));
 
@@ -130,22 +113,19 @@ describe('EmailEventsListener', () => {
     );
   });
 
-  it('should skip USER.CREATED event when payload is invalid', async () => {
-    await expect(
-      listener.handleUserCreated(
-        new UserCreatedEvent({
-          id: 'invalid-id',
-          email: 'test@example.com',
-          userName: 'test-user',
-        } as never),
-      ),
-    ).resolves.toBeUndefined();
-
-    expect(welcomeEmailService.sendWelcomeEmail).not.toHaveBeenCalled();
-    expect(logger.error).toHaveBeenCalledWith(
-      expect.objectContaining({ eventName: EVENT_NAMES.USER.CREATED }),
-      'Received invalid user event payload',
+  it('should process EMAIL_VERIFIED event when payload is valid', async () => {
+    await listener.handleEmailVerified(
+      new AuthEmailVerifiedEvent({
+        email: 'test@example.com',
+        userName: 'test-user',
+      }),
     );
+
+    expect(welcomeEmailService.sendWelcomeEmail).toHaveBeenCalledWith({
+      to: 'test@example.com',
+      name: 'test-user',
+    });
+    expect(logger.error).not.toHaveBeenCalled();
   });
 
   it('should skip EMAIL_VERIFIED event when payload is invalid', async () => {
