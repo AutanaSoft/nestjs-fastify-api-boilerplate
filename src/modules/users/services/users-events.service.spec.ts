@@ -54,7 +54,7 @@ describe('UsersEventsService', () => {
       EVENT_NAMES.USER.CREATED,
       expect.objectContaining({
         payload: {
-          userId: baseUser.id,
+          id: baseUser.id,
           email: baseUser.email,
           userName: baseUser.userName,
         },
@@ -70,7 +70,7 @@ describe('UsersEventsService', () => {
       EVENT_NAMES.USER.UPDATED_PASSWORD,
       expect.objectContaining({
         payload: {
-          userId: baseUser.id,
+          id: baseUser.id,
           email: baseUser.email,
           userName: baseUser.userName,
         },
