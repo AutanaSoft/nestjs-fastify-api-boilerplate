@@ -151,19 +151,14 @@ export const usersReadSuite = (getApp: () => NestFastifyApplication, context: Us
           });
       });
 
-      it('should return user by id for owner requester', async () => {
+      it('should return 403 when requester is a regular user', async () => {
         await request(app.getHttpServer())
           .get(`/users/${context.regularUser.id}`)
           .set('Authorization', `Bearer ${getRegularToken()}`)
-          .expect(200)
-          .expect((res) => {
-            const body = res.body as Record<string, unknown>;
-            expect(body.id).toBe(context.regularUser.id);
-            expect(body.email).toBe(context.regularUser.email);
-          });
+          .expect(403);
       });
 
-      it('should return 403 when requester is neither owner nor admin', async () => {
+      it('should return 403 when requester is not admin', async () => {
         await request(app.getHttpServer())
           .get(`/users/${createdUserId}`)
           .set('Authorization', `Bearer ${getRegularToken()}`)

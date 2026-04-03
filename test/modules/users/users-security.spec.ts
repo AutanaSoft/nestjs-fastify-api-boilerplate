@@ -12,14 +12,6 @@ export const usersSecuritySuite = (
     let regularUserId: string;
     let currentPassword: string;
 
-    const getAdminToken = (): string => {
-      if (!context.adminUser.accessToken) {
-        throw new Error('Admin access token is required for users security suite');
-      }
-
-      return context.adminUser.accessToken;
-    };
-
     const getRegularToken = (): string => {
       if (!context.regularUser.accessToken) {
         throw new Error('Regular access token is required for users security suite');
@@ -51,7 +43,7 @@ export const usersSecuritySuite = (
           .expect(401);
       });
 
-      it('should return 403 when requester is neither owner nor admin', async () => {
+      it('should return 403 when requester updates a foreign user password', async () => {
         if (!context.managedUserId) {
           throw new Error('managedUserId is required for forbidden password update test');
         }
@@ -67,16 +59,16 @@ export const usersSecuritySuite = (
           .expect(403);
       });
 
-      it('should return 400 when id is not a valid uuid', async () => {
+      it('should return 403 when id does not match current requester', async () => {
         await request(app.getHttpServer())
-          .patch('/users/invalid-id/password')
-          .set('Authorization', `Bearer ${getAdminToken()}`)
+          .patch(`/users/${randomUUID()}/password`)
+          .set('Authorization', `Bearer ${getRegularToken()}`)
           .send({
             current: currentPassword,
             new: 'NextPassword123!',
             confirm: 'NextPassword123!',
           })
-          .expect(400);
+          .expect(403);
       });
 
       it('should return 400 when all password fields are invalid', async () => {
@@ -101,18 +93,6 @@ export const usersSecuritySuite = (
             confirm: 'DifferentPassword123!',
           })
           .expect(400);
-      });
-
-      it('should return 404 when user does not exist', async () => {
-        await request(app.getHttpServer())
-          .patch(`/users/${randomUUID()}/password`)
-          .set('Authorization', `Bearer ${getAdminToken()}`)
-          .send({
-            current: currentPassword,
-            new: 'NextPassword123!',
-            confirm: 'NextPassword123!',
-          })
-          .expect(404);
       });
 
       it('should return 400 when current password is invalid', async () => {

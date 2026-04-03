@@ -69,7 +69,7 @@ export const usersUpdateSuite = (
           .expect(401);
       });
 
-      it('should return 403 when requester is neither owner nor admin', async () => {
+      it('should return 403 when requester is not admin', async () => {
         await request(app.getHttpServer())
           .patch(`/users/${createdUserId}`)
           .set('Authorization', `Bearer ${getRegularToken()}`)
@@ -77,7 +77,7 @@ export const usersUpdateSuite = (
           .expect(403);
       });
 
-      it('should update own user when requester is owner', async () => {
+      it('should return 403 when regular requester updates own user', async () => {
         const updatedSuffix = randomUUID().slice(0, 4);
         const updatedUserName = `owner-${updatedSuffix}`;
 
@@ -85,12 +85,7 @@ export const usersUpdateSuite = (
           .patch(`/users/${context.regularUser.id}`)
           .set('Authorization', `Bearer ${getRegularToken()}`)
           .send({ userName: updatedUserName })
-          .expect(200)
-          .expect((res) => {
-            const body = res.body as Record<string, unknown>;
-            expect(body.id).toBe(context.regularUser.id);
-            expect(body.userName).toBe(updatedUserName);
-          });
+          .expect(403);
       });
 
       it('should return 400 when id is not a valid uuid', async () => {

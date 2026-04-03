@@ -3,7 +3,6 @@ import { Test, type TestingModule } from '@nestjs/testing';
 import { EVENT_NAMES } from '@shared/constants/event-names.constants';
 import { PinoLogger } from 'nestjs-pino';
 import { UserRoles, UserStatus } from '../constants';
-import { UserCreatedEvent, UserPasswordUpdatedEvent } from '../events';
 import { UsersEventsService } from './users-events.service';
 
 describe('UsersEventsService', () => {
@@ -53,7 +52,13 @@ describe('UsersEventsService', () => {
 
     expect(eventEmitter.emit).toHaveBeenCalledWith(
       EVENT_NAMES.USER.CREATED,
-      expect.any(UserCreatedEvent),
+      expect.objectContaining({
+        payload: {
+          userId: baseUser.id,
+          email: baseUser.email,
+          userName: baseUser.userName,
+        },
+      }),
     );
     expect(logger.debug).toHaveBeenCalledWith({ userId: baseUser.id }, 'Emitted USER.CREATED');
   });
@@ -63,11 +68,26 @@ describe('UsersEventsService', () => {
 
     expect(eventEmitter.emit).toHaveBeenCalledWith(
       EVENT_NAMES.USER.UPDATED_PASSWORD,
-      expect.any(UserPasswordUpdatedEvent),
+      expect.objectContaining({
+        payload: {
+          userId: baseUser.id,
+          email: baseUser.email,
+          userName: baseUser.userName,
+        },
+      }),
     );
     expect(logger.debug).toHaveBeenCalledWith(
       { userId: baseUser.id },
       'Emitted USER.UPDATED_PASSWORD',
     );
+  });
+
+  it('should throw when user event payload is invalid', () => {
+    expect(() =>
+      service.emitUserCreated({
+        ...baseUser,
+        email: 'invalid-email',
+      } as never),
+    ).toThrow();
   });
 });

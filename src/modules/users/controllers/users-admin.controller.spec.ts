@@ -4,16 +4,14 @@ import {
   UsersGetByEmailService,
   UsersGetByIdService,
   UsersListService,
-  UsersUpdatePasswordService,
   UsersUpdateService,
 } from '../services';
-import { UsersController } from './users.controller';
+import { UsersAdminController } from './users-admin.controller';
 
-describe('UsersController', () => {
-  let controller: UsersController;
+describe('UsersAdminController', () => {
+  let controller: UsersAdminController;
   let usersCreateService: jest.Mocked<Pick<UsersCreateService, 'createUser'>>;
   let usersUpdateService: jest.Mocked<Pick<UsersUpdateService, 'updateUser'>>;
-  let usersUpdatePasswordService: jest.Mocked<Pick<UsersUpdatePasswordService, 'updatePassword'>>;
   let usersGetByEmailService: jest.Mocked<Pick<UsersGetByEmailService, 'getUserByEmail'>>;
   let usersGetByIdService: jest.Mocked<Pick<UsersGetByIdService, 'getUserById'>>;
   let usersListService: jest.Mocked<Pick<UsersListService, 'getUsers'>>;
@@ -21,14 +19,6 @@ describe('UsersController', () => {
   beforeEach(async () => {
     usersCreateService = {
       createUser: jest.fn(),
-    };
-
-    usersUpdateService = {
-      updateUser: jest.fn(),
-    };
-
-    usersUpdatePasswordService = {
-      updatePassword: jest.fn(),
     };
 
     usersGetByEmailService = {
@@ -39,23 +29,26 @@ describe('UsersController', () => {
       getUserById: jest.fn(),
     };
 
+    usersUpdateService = {
+      updateUser: jest.fn(),
+    };
+
     usersListService = {
       getUsers: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [UsersController],
+      controllers: [UsersAdminController],
       providers: [
         { provide: UsersCreateService, useValue: usersCreateService },
         { provide: UsersUpdateService, useValue: usersUpdateService },
-        { provide: UsersUpdatePasswordService, useValue: usersUpdatePasswordService },
         { provide: UsersGetByEmailService, useValue: usersGetByEmailService },
         { provide: UsersGetByIdService, useValue: usersGetByIdService },
         { provide: UsersListService, useValue: usersListService },
       ],
     }).compile();
 
-    controller = module.get<UsersController>(UsersController);
+    controller = module.get<UsersAdminController>(UsersAdminController);
   });
 
   it('should be defined', () => {
@@ -81,6 +74,26 @@ describe('UsersController', () => {
     expect(usersCreateService.createUser).toHaveBeenCalledWith(payload);
   });
 
+  it('should get user by email', async () => {
+    const params = { email: 'test@example.com' };
+    const user = { id: '1', email: params.email };
+
+    usersGetByEmailService.getUserByEmail.mockResolvedValue(user as never);
+
+    await expect(controller.getUserByEmail(params as never)).resolves.toEqual(user);
+    expect(usersGetByEmailService.getUserByEmail).toHaveBeenCalledWith(params.email);
+  });
+
+  it('should get user by id', async () => {
+    const params = { id: '550e8400-e29b-41d4-a716-446655440000' };
+    const user = { id: params.id, email: 'test@example.com' };
+
+    usersGetByIdService.getUserById.mockResolvedValue(user as never);
+
+    await expect(controller.getUserById(params as never)).resolves.toEqual(user);
+    expect(usersGetByIdService.getUserById).toHaveBeenCalledWith(params.id);
+  });
+
   it('should update user', async () => {
     const params = { id: '550e8400-e29b-41d4-a716-446655440000' };
     const payload = { userName: 'new-name' };
@@ -92,36 +105,6 @@ describe('UsersController', () => {
       updatedUser,
     );
     expect(usersUpdateService.updateUser).toHaveBeenCalledWith(params.id, payload);
-  });
-
-  it('should update password', async () => {
-    const params = { id: '550e8400-e29b-41d4-a716-446655440000' };
-    const payload = { current: 'old', new: 'new', confirm: 'new' };
-
-    usersUpdatePasswordService.updatePassword.mockResolvedValue(undefined);
-
-    await expect(
-      controller.updatePassword(params as never, payload as never),
-    ).resolves.toBeUndefined();
-    expect(usersUpdatePasswordService.updatePassword).toHaveBeenCalledWith(params.id, payload);
-  });
-
-  it('should get user by email', async () => {
-    const params = { email: 'test@example.com' };
-    const user = { id: '1', email: params.email };
-    usersGetByEmailService.getUserByEmail.mockResolvedValue(user as never);
-
-    await expect(controller.getUserByEmail(params as never)).resolves.toEqual(user);
-    expect(usersGetByEmailService.getUserByEmail).toHaveBeenCalledWith(params.email);
-  });
-
-  it('should get user by id', async () => {
-    const params = { id: '550e8400-e29b-41d4-a716-446655440000' };
-    const user = { id: params.id, email: 'test@example.com' };
-    usersGetByIdService.getUserById.mockResolvedValue(user as never);
-
-    await expect(controller.getUserById(params as never)).resolves.toEqual(user);
-    expect(usersGetByIdService.getUserById).toHaveBeenCalledWith(params.id);
   });
 
   it('should get users list', async () => {

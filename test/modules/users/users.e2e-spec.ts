@@ -5,6 +5,7 @@ import { randomUUID } from 'node:crypto';
 import request from 'supertest';
 import { getAppInstance } from '../../utils/test-client';
 import { usersCreateSuite } from './users-create.spec';
+import { usersMeSuite } from './users-me.spec';
 import { usersReadSuite } from './users-read.spec';
 import { usersSecuritySuite } from './users-security.spec';
 import type { UsersE2EContext } from './users.e2e.types';
@@ -100,6 +101,7 @@ describe('UsersController (e2e)', () => {
   });
 
   usersCreateSuite(() => app, context);
+  usersMeSuite(() => app, context);
   usersReadSuite(() => app, context);
   usersUpdateSuite(() => app, context);
   usersSecuritySuite(() => app, context);

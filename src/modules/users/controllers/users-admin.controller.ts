@@ -13,38 +13,35 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ZodSerializerDto } from 'nestjs-zod';
 import { Roles } from '@/modules/auth/decorators';
-import { JwtAuthGuard, RolesGuard, SelfOrAdminGuard } from '@/modules/auth/guards';
+import { JwtAuthGuard, RolesGuard } from '@/modules/auth/guards';
 import {
   CreateUserDto,
-  GetUserByEmailParamsDto,
   GetUserByIdParamsDto,
+  GetUserByEmailParamsDto,
   GetUsersQueryDto,
   GetUsersResponseDto,
-  UpdatePasswordDto,
   UpdateUserDto,
   UserModelDto,
 } from '../dto';
-import type { UserEntity } from '../interfaces';
+import type { GetUsersResponse, UserEntity } from '../interfaces';
 import {
   UsersCreateService,
   UsersGetByEmailService,
   UsersGetByIdService,
   UsersListService,
-  UsersUpdatePasswordService,
   UsersUpdateService,
 } from '../services';
 
 /**
- * HTTP entry controller for users module operations.
+ * HTTP controller for admin-only users endpoints.
  */
 @ApiTags('Users')
 @ApiBearerAuth()
 @Controller('users')
-export class UsersController {
+export class UsersAdminController {
   constructor(
     private readonly _usersCreateService: UsersCreateService,
     private readonly _usersUpdateService: UsersUpdateService,
-    private readonly _usersUpdatePasswordService: UsersUpdatePasswordService,
     private readonly _usersGetByEmailService: UsersGetByEmailService,
     private readonly _usersGetByIdService: UsersGetByIdService,
     private readonly _usersListService: UsersListService,
@@ -65,37 +62,6 @@ export class UsersController {
   }
 
   /**
-   * Updates a user profile.
-   */
-  @Patch(':id')
-  @UseGuards(JwtAuthGuard, SelfOrAdminGuard)
-  @HttpCode(HttpStatus.OK)
-  @ZodSerializerDto(UserModelDto)
-  @ApiOperation({ summary: 'Update user' })
-  @ApiResponse({ status: HttpStatus.OK, type: UserModelDto })
-  async updateUser(
-    @Param() params: GetUserByIdParamsDto,
-    @Body() payload: UpdateUserDto,
-  ): Promise<UserEntity> {
-    return this._usersUpdateService.updateUser(params.id, payload);
-  }
-
-  /**
-   * Changes a user password validating the current password.
-   */
-  @Patch(':id/password')
-  @UseGuards(JwtAuthGuard, SelfOrAdminGuard)
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Update user password' })
-  @ApiResponse({ status: HttpStatus.NO_CONTENT })
-  async updatePassword(
-    @Param() params: GetUserByIdParamsDto,
-    @Body() payload: UpdatePasswordDto,
-  ): Promise<void> {
-    await this._usersUpdatePasswordService.updatePassword(params.id, payload);
-  }
-
-  /**
    * Retrieves a user by email.
    */
   @Get('by-email/:email')
@@ -113,13 +79,31 @@ export class UsersController {
    * Retrieves a user by id.
    */
   @Get(':id')
-  @UseGuards(JwtAuthGuard, SelfOrAdminGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
   @HttpCode(HttpStatus.OK)
   @ZodSerializerDto(UserModelDto)
   @ApiOperation({ summary: 'Get user by id' })
   @ApiResponse({ status: HttpStatus.OK, type: UserModelDto })
   async getUserById(@Param() params: GetUserByIdParamsDto): Promise<UserEntity> {
     return this._usersGetByIdService.getUserById(params.id);
+  }
+
+  /**
+   * Updates a user profile.
+   */
+  @Patch(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @HttpCode(HttpStatus.OK)
+  @ZodSerializerDto(UserModelDto)
+  @ApiOperation({ summary: 'Update user' })
+  @ApiResponse({ status: HttpStatus.OK, type: UserModelDto })
+  async updateUser(
+    @Param() params: GetUserByIdParamsDto,
+    @Body() payload: UpdateUserDto,
+  ): Promise<UserEntity> {
+    return this._usersUpdateService.updateUser(params.id, payload);
   }
 
   /**
@@ -132,7 +116,7 @@ export class UsersController {
   @ZodSerializerDto(GetUsersResponseDto)
   @ApiOperation({ summary: 'Get users' })
   @ApiResponse({ status: HttpStatus.OK, type: GetUsersResponseDto })
-  async getUsers(@Query() payload: GetUsersQueryDto): Promise<GetUsersResponseDto> {
+  async getUsers(@Query() payload: GetUsersQueryDto): Promise<GetUsersResponse> {
     return this._usersListService.getUsers(payload);
   }
 }
