@@ -14,12 +14,12 @@ interface EmailVerifyProps {
  * Verification email disclaimer text.
  */
 const disclaimer =
-  'Has recibido este correo electrónico porque has solicitado confirmar tu correo electrónico en AutanaSoft.';
+  'You are receiving this email because a request was made to verify this email address.';
 
 /**
  * Verification email preview text.
  */
-const previewText = 'Confirma tu correo electrónico para completar el registro en AutanaSoft.';
+const previewText = 'Please verify your email address to complete your registration.';
 
 /**
  * Account verification email template.
@@ -33,11 +33,10 @@ export const EmailVerifyTemplate = ({ name, href }: EmailVerifyProps): React.Rea
     <Preview>{previewText}</Preview>
     <Section>
       <Text className="text-sm leading-[24px]">
-        Para finalizar la configuración de tu cuenta y empezar a utilizar{' '}
-        <strong>AutanaSoft</strong>, necesitamos verificar tu dirección de correo electrónico.
+        To complete your account setup, we need to verify your email address.
       </Text>
       <Text className="text-sm leading-[24px]">
-        Por favor, haz clic en el siguiente botón para confirmar tu registro:
+        Please click the button below to confirm your registration:
       </Text>
     </Section>
 
@@ -46,13 +45,13 @@ export const EmailVerifyTemplate = ({ name, href }: EmailVerifyProps): React.Rea
         className="bg-brand-primary rounded-[8px] text-white text-[14px] font-semibold no-underline text-center px-6 py-3"
         href={href}
       >
-        Confirmar mi correo electrónico
+        Verify My Email
       </Button>
     </Section>
 
     <Section>
       <Text className="text-xs leading-[24px] text-gray-500">
-        Si el botón de arriba no funciona, copia y pega este enlace en tu navegador:
+        If the button above does not work, copy and paste this link into your browser:
         <br />
         <a href={href} className="text-brand-primary break-all">
           {href}
@@ -60,8 +59,7 @@ export const EmailVerifyTemplate = ({ name, href }: EmailVerifyProps): React.Rea
       </Text>
       <Hr className="border-gray-200 mt-4 mb-4" />
       <Text className="text-xs leading-[24px] text-gray-500 italic">
-        Si no has solicitado este registro, no es necesario que realices ninguna acción; puedes
-        ignorar este mensaje con total tranquilidad.
+        If you did not request this, you can safely ignore this message.
       </Text>
     </Section>
   </BaseLayoutComponent>
@@ -71,8 +69,8 @@ export const EmailVerifyTemplate = ({ name, href }: EmailVerifyProps): React.Rea
  * Preview props for the verification email template.
  */
 EmailVerifyTemplate.PreviewProps = {
-  name: 'AutanaSoft',
-  href: 'https://autanasoft.com/auth/verify-email?token=1234567890',
+  name: 'Platform User',
+  href: 'https://app.example.com/auth/verify-email?token=1234567890',
 } as EmailVerifyProps;
 
 export default EmailVerifyTemplate;

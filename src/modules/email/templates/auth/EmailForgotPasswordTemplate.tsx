@@ -13,12 +13,12 @@ interface EmailForgotPasswordProps {
  * Forgot password email disclaimer text.
  */
 const disclaimer =
-  'Has recibido este correo electrónico porque has solicitado restablecer tu contraseña en AutanaSoft.';
+  'You are receiving this email because a password reset was requested for this account.';
 
 /**
  * Forgot password email preview text.
  */
-const previewText = 'Restablece tu contraseña en AutanaSoft para recuperar el acceso a tu cuenta.';
+const previewText = 'Reset your password to recover access to your account.';
 
 /**
  * Password recovery email template.
@@ -35,12 +35,11 @@ export const EmailForgotPasswordTemplate = ({
     <Preview>{previewText}</Preview>
     <Section>
       <Text className="text-sm leading-[24px]">
-        Hemos recibido una solicitud para restablecer la contraseña de tu cuenta asociada a este
-        correo electrónico en <strong>AutanaSoft</strong>.
+        We received a request to reset the password for the account associated with this email
+        address.
       </Text>
       <Text className="text-sm leading-[24px]">
-        Para continuar con el proceso y crear una nueva contraseña, por favor haz clic en el
-        siguiente botón:
+        To continue and create a new password, click the button below:
       </Text>
     </Section>
 
@@ -49,14 +48,14 @@ export const EmailForgotPasswordTemplate = ({
         className="bg-brand-primary rounded-[8px] text-white text-[14px] font-semibold no-underline text-center px-6 py-3"
         href={href}
       >
-        Restablecer mi contraseña
+        Reset My Password
       </Button>
     </Section>
 
     <Section>
       <Text className="text-xs leading-[24px] text-gray-500">
-        Este enlace caducará pronto por motivos de seguridad. Si el botón de arriba no funciona,
-        puedes copiar y pegar esta dirección en tu navegador:
+        This link will expire soon for security reasons. If the button above does not work, copy and
+        paste this URL into your browser:
         <br />
         <a href={href} className="text-brand-primary break-all">
           {href}
@@ -64,17 +63,16 @@ export const EmailForgotPasswordTemplate = ({
       </Text>
       <Hr className="border-gray-200 mt-4 mb-4" />
       <Text className="text-xs leading-[24px] text-gray-500 italic">
-        <strong>Importante:</strong> Si tú no has solicitado este cambio, puedes ignorar este
-        mensaje con total seguridad; tu contraseña actual permanecerá intacta y nadie más podrá
-        cambiarla sin acceso a este correo.
+        <strong>Important:</strong> If you did not request this change, you can safely ignore this
+        message. Your current password will remain unchanged.
       </Text>
     </Section>
   </BaseLayoutComponent>
 );
 
 EmailForgotPasswordTemplate.PreviewProps = {
-  name: 'AutanaSoft',
-  href: 'https://autanasoft.com/auth/reset-password?token=1234567890',
+  name: 'Platform User',
+  href: 'https://app.example.com/auth/reset-password?token=1234567890',
 } as EmailForgotPasswordProps;
 
 export default EmailForgotPasswordTemplate;

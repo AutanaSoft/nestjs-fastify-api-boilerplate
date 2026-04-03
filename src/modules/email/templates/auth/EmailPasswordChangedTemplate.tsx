@@ -19,12 +19,12 @@ interface EmailPasswordChangedProps {
  * Password changed email disclaimer text.
  */
 const disclaimer =
-  'Has recibido este correo electrónico porque se ha realizado un cambio de contraseña en tu cuenta de AutanaSoft.';
+  'You are receiving this email because a password change was completed for your account.';
 
 /**
  * Password changed email preview text.
  */
-const previewText = 'Tu contraseña ha sido cambiada con éxito';
+const previewText = 'Your password was changed successfully.';
 
 /**
  * Password changed notification email template.
@@ -40,20 +40,18 @@ export const EmailPasswordChangedTemplate = ({
     <Preview>{previewText}</Preview>
     <Section>
       <Text className="text-sm leading-[24px]">
-        Te informamos que la contraseña de tu cuenta en <strong>AutanaSoft</strong> ha sido
-        actualizada correctamente.
+        This is a confirmation that your account password was updated successfully.
       </Text>
       <Section className="bg-gray-50 rounded-lg p-4 my-4">
         <Text className="text-sm m-0">
-          <strong>Fecha y hora del cambio:</strong> {changedAt}
+          <strong>Change date and time:</strong> {changedAt}
         </Text>
       </Section>
       <Text className="text-sm leading-[24px]">
-        Si tú realizaste este cambio, no es necesario que realices ninguna acción adicional.
+        If you made this change, no further action is required.
       </Text>
       <Text className="text-sm leading-[24px] font-bold text-red-600 mt-4">
-        Si NO solicitaste este cambio, por favor ponte en contacto con nuestro equipo de soporte de
-        inmediato para proteger tu cuenta.
+        If you did not request this change, contact support immediately to secure your account.
       </Text>
     </Section>
   </BaseLayoutComponent>
@@ -63,7 +61,7 @@ export const EmailPasswordChangedTemplate = ({
  * Preview props for the password changed email template.
  */
 EmailPasswordChangedTemplate.PreviewProps = {
-  name: 'Usuario de Prueba',
+  name: 'Platform User',
   changedAt: new Date().toLocaleString(),
 } as EmailPasswordChangedProps;
 
