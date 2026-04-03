@@ -6,10 +6,10 @@ import type { ReactElement } from 'react';
 import { EMAIL_SENDER } from '../../constants/email.constants';
 import { type EmailSender } from '../../interfaces/email-sender.interface';
 import { EmailTemplateProvider } from '../../providers/email-template.provider';
-import { VerifyEmailService } from './verify-email.service';
+import { EmailForgotPasswordService } from './email-forgot-password.service';
 
-describe('VerifyEmailService', () => {
-  let service: VerifyEmailService;
+describe('EmailForgotPasswordService', () => {
+  let service: EmailForgotPasswordService;
   let emailSender: jest.Mocked<EmailSender>;
   let templateProvider: jest.Mocked<Pick<EmailTemplateProvider, 'render'>>;
   let logger: jest.Mocked<Pick<PinoLogger, 'setContext' | 'info' | 'error'>>;
@@ -20,7 +20,7 @@ describe('VerifyEmailService', () => {
     };
 
     templateProvider = {
-      render: jest.fn().mockResolvedValue('<html><body>Verify</body></html>'),
+      render: jest.fn().mockResolvedValue('<html><body>Forgot</body></html>'),
     };
 
     logger = {
@@ -31,7 +31,7 @@ describe('VerifyEmailService', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        VerifyEmailService,
+        EmailForgotPasswordService,
         { provide: EMAIL_SENDER, useValue: emailSender },
         { provide: EmailTemplateProvider, useValue: templateProvider },
         { provide: PinoLogger, useValue: logger },
@@ -42,33 +42,33 @@ describe('VerifyEmailService', () => {
       ],
     }).compile();
 
-    service = module.get<VerifyEmailService>(VerifyEmailService);
+    service = module.get<EmailForgotPasswordService>(EmailForgotPasswordService);
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  describe('sendVerifyEmail', () => {
+  describe('sendForgotPasswordEmail', () => {
     const mockInput = {
       to: 'test@example.com',
       name: 'Test User',
-      token: 'a.b.c',
+      token: 'header.payload.signature',
     };
 
-    it('should send the verification email with an encoded JWT token in the URL', async () => {
-      await expect(service.sendVerifyEmail(mockInput)).resolves.toBeUndefined();
+    it('should send password recovery email with jwt token in the URL', async () => {
+      await expect(service.sendForgotPasswordEmail(mockInput)).resolves.toBeUndefined();
 
       expect(templateProvider.render).toHaveBeenCalledTimes(1);
       const templateElement = templateProvider.render.mock.calls[0][0] as ReactElement<{
         href: string;
       }>;
-      expect(templateElement.props.href).toContain('token=a.b.c');
+      expect(templateElement.props.href).toContain('token=header.payload.signature');
 
       expect(emailSender.send).toHaveBeenCalledWith(
         expect.objectContaining({
           to: mockInput.to,
-          subject: 'Confirm your email address - AutanaSoft',
+          subject: 'Reset your password - AutanaSoft',
         }),
       );
     });
@@ -80,15 +80,15 @@ describe('VerifyEmailService', () => {
       };
 
       await expect(
-        service.sendVerifyEmail(inputWithoutToken as unknown as typeof mockInput),
+        service.sendForgotPasswordEmail(inputWithoutToken as unknown as typeof mockInput),
       ).rejects.toThrow(InternalServerErrorException);
       expect(logger.error).toHaveBeenCalledTimes(1);
     });
 
-    it('should throw InternalServerErrorException when rendering fails', async () => {
-      templateProvider.render.mockRejectedValue(new Error('Render Error'));
+    it('should throw InternalServerErrorException when sender fails', async () => {
+      emailSender.send.mockRejectedValue(new Error('Send Error'));
 
-      await expect(service.sendVerifyEmail(mockInput)).rejects.toThrow(
+      await expect(service.sendForgotPasswordEmail(mockInput)).rejects.toThrow(
         InternalServerErrorException,
       );
       expect(logger.error).toHaveBeenCalledTimes(1);

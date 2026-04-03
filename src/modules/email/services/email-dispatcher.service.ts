@@ -1,12 +1,14 @@
 import { Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
-import type { EmailSender } from '../interfaces/email-sender.interface';
-import type { EmailAdapter } from '../schemas';
+import type { EmailAdapter, EmailSender } from '../interfaces';
 import { SettingsReadService } from '../../settings/services';
 import { SmtpEmailAdapter } from '../adapters/smtp-email.adapter';
 import { ResendEmailAdapter } from '../adapters/resend-email.adapter';
 import { RESEND_EMAIL_ADAPTER, SMTP_EMAIL_ADAPTER } from '../constants/email.constants';
 
+/**
+ * Dispatches email payloads to the configured delivery provider.
+ */
 @Injectable()
 export class EmailDispatcherService implements EmailSender {
   constructor(
@@ -20,6 +22,12 @@ export class EmailDispatcherService implements EmailSender {
     this._logger.setContext(EmailDispatcherService.name);
   }
 
+  /**
+   * Sends an email using the active provider configured in settings.
+   *
+   * @param {EmailAdapter} data Normalized email payload.
+   * @returns {Promise<void>} Resolves when delivery is delegated to the selected adapter.
+   */
   async send(data: EmailAdapter): Promise<void> {
     const config = await this._settingsReadService.getEmailSettings(false);
 

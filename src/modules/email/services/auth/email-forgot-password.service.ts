@@ -5,16 +5,16 @@ import { PinoLogger } from 'nestjs-pino';
 import React from 'react';
 import { EMAIL_SENDER } from '../../constants/email.constants';
 import { EmailAuthPath } from '../../enums/email-auth-path.enum';
-import { type EmailSender } from '../../interfaces/email-sender.interface';
+import type { EmailSender, EmailTokenInput } from '../../interfaces';
 import { EmailTemplateProvider } from '../../providers/email-template.provider';
-import { EmailTokenInput, EmailTokenInputSchema } from '../../schemas';
-import VerifyEmailTemplate from '../../templates/auth/VerifyEmailTemplate';
+import { EmailTokenInputSchema } from '../../schemas';
+import EmailForgotPasswordTemplate from '../../templates/auth/EmailForgotPasswordTemplate';
 
 /**
- * Domain service responsible for verification email business logic.
+ * Domain service responsible for password recovery email business logic.
  */
 @Injectable()
-export class VerifyEmailService {
+export class EmailForgotPasswordService {
   constructor(
     @Inject(EMAIL_SENDER) private readonly _emailSender: EmailSender,
     @Inject(appConfig.KEY)
@@ -22,16 +22,16 @@ export class VerifyEmailService {
     private readonly _templateProvider: EmailTemplateProvider,
     private readonly _logger: PinoLogger,
   ) {
-    this._logger.setContext(VerifyEmailService.name);
+    this._logger.setContext(EmailForgotPasswordService.name);
   }
 
   /**
-   * Sends an account verification email.
+   * Sends a password recovery email.
    *
    * @param {EmailTokenInput} params Recipient payload with JWT token.
    * @returns {Promise<void>} Resolves when the email has been sent.
    */
-  async sendVerifyEmail(params: EmailTokenInput): Promise<void> {
+  async sendForgotPasswordEmail(params: EmailTokenInput): Promise<void> {
     try {
       // 1. Validate input (Zod)
       const payload = EmailTokenInputSchema.parse(params);
@@ -39,10 +39,10 @@ export class VerifyEmailService {
       // 2. Build CTA URL from externally issued JWT token
       const frontendUrl = this._config.APP_FRONTEND_URL;
       const token = encodeURIComponent(payload.token);
-      const ctaUrl = `${frontendUrl}${EmailAuthPath.VERIFY_EMAIL}?token=${token}`;
+      const ctaUrl = `${frontendUrl}${EmailAuthPath.RESET_PASSWORD}?token=${token}`;
 
       // 3. Render email template
-      const element = React.createElement(VerifyEmailTemplate, {
+      const element = React.createElement(EmailForgotPasswordTemplate, {
         name: payload.name,
         href: ctaUrl,
       });
@@ -51,22 +51,22 @@ export class VerifyEmailService {
       // 4. Dispatch email
       await this._emailSender.send({
         to: payload.to,
-        subject: 'Confirm your email address - AutanaSoft',
+        subject: 'Reset your password - AutanaSoft',
         html,
       });
 
-      this._logger.info({ to: payload.to }, 'Verification email sent successfully');
+      this._logger.info({ to: payload.to }, 'Password recovery email sent successfully');
     } catch (error: unknown) {
       if (error instanceof Error) {
         this._logger.error(
           { params, error: { name: error.name, message: error.message, stack: error.stack } },
-          'Failed to process verification email',
+          'Failed to process password recovery email',
         );
       } else {
-        this._logger.error({ params, error }, 'Failed to process verification email');
+        this._logger.error({ params, error }, 'Failed to process password recovery email');
       }
 
-      throw new InternalServerErrorException('Failed to process verification email');
+      throw new InternalServerErrorException('Failed to process password recovery email');
     }
   }
 }

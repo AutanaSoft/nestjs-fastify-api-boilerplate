@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import { PinoLogger } from 'nestjs-pino';
-import type { EmailAdapter } from '../schemas';
+import type { EmailAdapter } from '../interfaces';
 
 export interface SmtpCredentials {
   host: string;

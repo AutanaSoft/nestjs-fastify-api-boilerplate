@@ -9,9 +9,12 @@ interface BaseLayoutProps {
 }
 
 const fullYear = new Date().getFullYear();
+const PRODUCT_NAME = 'Your Platform';
+const PRODUCT_LOGO_URL =
+  'https://raw.githubusercontent.com/github/explore/main/topics/nestjs/nestjs.png';
 
 /**
- * Base layout component shared by all AutanaSoft email templates.
+ * Base layout component shared by all project email templates.
  * Encapsulates common structure such as header, greeting, and footer.
  */
 export const BaseLayoutComponent = ({ children, name, footerDisclaimer }: BaseLayoutProps) => (
@@ -45,15 +48,15 @@ export const BaseLayoutComponent = ({ children, name, footerDisclaimer }: BaseLa
           <Section className="pt-2">
             <Img
               className="mx-auto"
-              src={`https://www.autanasoft.com//assets/img/logos/autanasoft.png`}
+              src={PRODUCT_LOGO_URL}
               height="64"
-              alt="Autana Soft"
+              alt={`${PRODUCT_NAME} logo`}
             />
           </Section>
 
           <Section>
             <Hr className="border-gray-300 my-5" />
-            <Text className="text-sm leading-[22px] font-semibold">Hola {name},</Text>
+            <Text className="text-sm leading-[22px] font-semibold">Hello {name},</Text>
           </Section>
 
           {/* Page Content */}
@@ -62,9 +65,9 @@ export const BaseLayoutComponent = ({ children, name, footerDisclaimer }: BaseLa
           {/* Footer Signature */}
           <Section className="pb-6">
             <Hr className="border-gray-300 my-5" />
-            <Text className="text-sm leading-[22px] m-0">Gracias,</Text>
+            <Text className="text-sm leading-[22px] m-0">Thanks,</Text>
             <Text className="text-md font-semibold leading-[22px] m-0">
-              El equipo de AutanaSoft
+              The {PRODUCT_NAME} Team
             </Text>
           </Section>
         </Container>
@@ -75,7 +78,7 @@ export const BaseLayoutComponent = ({ children, name, footerDisclaimer }: BaseLa
               <Text className="text-xs leading-[22px] m-0">{footerDisclaimer}</Text>
             )}
             <Text className="text-xs leading-[22px] m-0">
-              © {fullYear} AutanaSoft. Todos los derechos reservados.
+              © {fullYear} {PRODUCT_NAME}. All rights reserved.
             </Text>
           </Section>
         </Container>
@@ -85,7 +88,7 @@ export const BaseLayoutComponent = ({ children, name, footerDisclaimer }: BaseLa
 );
 
 BaseLayoutComponent.PreviewProps = {
-  name: 'AutanaSoft User',
+  name: 'Platform User',
   footerDisclaimer: 'This is a disclaimer for testing purposes.',
 } as BaseLayoutProps;
 

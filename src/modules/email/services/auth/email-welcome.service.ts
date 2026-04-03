@@ -2,23 +2,23 @@ import { Inject, Injectable, InternalServerErrorException } from '@nestjs/common
 import { PinoLogger } from 'nestjs-pino';
 import React from 'react';
 import { EMAIL_SENDER } from '../../constants/email.constants';
-import { type EmailSender } from '../../interfaces/email-sender.interface';
+import type { EmailInput, EmailSender } from '../../interfaces';
 import { EmailTemplateProvider } from '../../providers/email-template.provider';
-import { EmailInput, EmailInputSchema } from '../../schemas';
-import WelcomeEmailTemplate from '../../templates/auth/WelcomeEmailTemplate';
+import { EmailInputSchema } from '../../schemas';
+import EmailWelcomeTemplate from '../../templates/auth/EmailWelcomeTemplate';
 
 /**
  * Domain service responsible for welcome email business logic.
- * Follows the flow: Controller -> Service -> Adapter/Provider.
+ * Follows the flow: Event/Use-case -> Service -> Adapter/Provider.
  */
 @Injectable()
-export class WelcomeEmailService {
+export class EmailWelcomeService {
   constructor(
     @Inject(EMAIL_SENDER) private readonly _emailSender: EmailSender,
     private readonly _templateProvider: EmailTemplateProvider,
     private readonly _logger: PinoLogger,
   ) {
-    this._logger.setContext(WelcomeEmailService.name);
+    this._logger.setContext(EmailWelcomeService.name);
   }
 
   /**
@@ -34,7 +34,7 @@ export class WelcomeEmailService {
       const payload = EmailInputSchema.parse(params);
 
       // 2. Prepare UI content
-      const element = React.createElement(WelcomeEmailTemplate, {
+      const element = React.createElement(EmailWelcomeTemplate, {
         name: payload.name,
       });
 

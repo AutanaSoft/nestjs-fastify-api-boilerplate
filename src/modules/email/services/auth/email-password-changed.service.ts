@@ -2,22 +2,22 @@ import { Inject, Injectable, InternalServerErrorException } from '@nestjs/common
 import { PinoLogger } from 'nestjs-pino';
 import React from 'react';
 import { EMAIL_SENDER } from '../../constants/email.constants';
-import { type EmailSender } from '../../interfaces/email-sender.interface';
+import type { EmailInput, EmailSender } from '../../interfaces';
 import { EmailTemplateProvider } from '../../providers/email-template.provider';
-import { EmailInput, EmailInputSchema } from '../../schemas';
-import PasswordChangedEmailTemplate from '../../templates/auth/PasswordChangedEmailTemplate';
+import { EmailInputSchema } from '../../schemas';
+import EmailPasswordChangedTemplate from '../../templates/auth/EmailPasswordChangedTemplate';
 
 /**
  * Domain service responsible for password changed notification emails.
  */
 @Injectable()
-export class PasswordChangedEmailService {
+export class EmailPasswordChangedService {
   constructor(
     @Inject(EMAIL_SENDER) private readonly _emailSender: EmailSender,
     private readonly _templateProvider: EmailTemplateProvider,
     private readonly _logger: PinoLogger,
   ) {
-    this._logger.setContext(PasswordChangedEmailService.name);
+    this._logger.setContext(EmailPasswordChangedService.name);
   }
 
   /**
@@ -39,7 +39,7 @@ export class PasswordChangedEmailService {
       const changedAt = new Date().toLocaleString('es-ES', dateOptions);
 
       // 3. Render email template
-      const element = React.createElement(PasswordChangedEmailTemplate, {
+      const element = React.createElement(EmailPasswordChangedTemplate, {
         name: payload.name,
         changedAt,
       });

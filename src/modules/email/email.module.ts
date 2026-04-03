@@ -1,23 +1,19 @@
 import { Module } from '@nestjs/common';
 import { EmailEventsListener } from './listeners';
-import {
-  EMAIL_SENDER,
-  RESEND_EMAIL_ADAPTER,
-  SMTP_EMAIL_ADAPTER,
-} from './constants/email.constants';
-import { EmailDispatcherService } from './services/email-dispatcher.service';
+import { EMAIL_SENDER, RESEND_EMAIL_ADAPTER, SMTP_EMAIL_ADAPTER } from './constants';
 import { SettingsModule } from '../settings/settings.module';
-import { EmailTemplateProvider } from './providers/email-template.provider';
-import { ForgotPasswordEmailService } from './services/auth/forgot-password-email.service';
-import { PasswordChangedEmailService } from './services/auth/password-changed-email.service';
-import { VerifyEmailService } from './services/auth/verify-email.service';
-import { WelcomeEmailService } from './services/auth/welcome-email.service';
-import { SmtpEmailAdapter } from './adapters/smtp-email.adapter';
-import { ResendEmailAdapter } from './adapters/resend-email.adapter';
+import { ResendEmailAdapter, SmtpEmailAdapter } from './adapters';
+import { EmailTemplateProvider } from './providers';
+import {
+  EmailDispatcherService,
+  EmailForgotPasswordService,
+  EmailPasswordChangedService,
+  EmailVerifyService,
+  EmailWelcomeService,
+} from './services';
 
 @Module({
   imports: [SettingsModule],
-  controllers: [],
   providers: [
     EmailTemplateProvider,
     SmtpEmailAdapter,
@@ -34,17 +30,17 @@ import { ResendEmailAdapter } from './adapters/resend-email.adapter';
       provide: EMAIL_SENDER,
       useClass: EmailDispatcherService,
     },
-    WelcomeEmailService,
-    VerifyEmailService,
-    ForgotPasswordEmailService,
-    PasswordChangedEmailService,
+    EmailWelcomeService,
+    EmailVerifyService,
+    EmailForgotPasswordService,
+    EmailPasswordChangedService,
     EmailEventsListener,
   ],
   exports: [
-    WelcomeEmailService,
-    VerifyEmailService,
-    ForgotPasswordEmailService,
-    PasswordChangedEmailService,
+    EmailWelcomeService,
+    EmailVerifyService,
+    EmailForgotPasswordService,
+    EmailPasswordChangedService,
   ],
 })
 export class EmailModule {}

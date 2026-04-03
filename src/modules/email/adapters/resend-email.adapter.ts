@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
 import { Resend } from 'resend';
-import type { EmailAdapter } from '../schemas';
+import type { EmailAdapter } from '../interfaces';
 
 /**
  * Dynamic adapter for sending emails through Resend.
