@@ -7,6 +7,7 @@ import type { ConfigType } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { AuthController } from './controllers';
+import { AuthUsersEventsListener } from './listeners';
 import { AuthRepository, PrismaAuthRepository } from './repositories';
 import {
   AuthEmailVerificationService,
@@ -16,6 +17,7 @@ import {
   AuthSignInService,
   AuthSignOutService,
   AuthSignUpService,
+  AuthUserCreatedVerificationService,
   JwtTokenService,
   RefreshTokenService,
 } from './services';
@@ -50,10 +52,12 @@ import { JwtStrategy } from './strategies';
     AuthSignOutService,
     AuthEmailVerificationService,
     AuthPasswordRecoveryService,
+    AuthUserCreatedVerificationService,
     AuthEventsService,
     JwtTokenService,
     RefreshTokenService,
     JwtStrategy,
+    AuthUsersEventsListener,
     {
       provide: AuthRepository,
       useClass: PrismaAuthRepository,
