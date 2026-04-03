@@ -5,5 +5,6 @@ export * from './auth-refresh.service';
 export * from './auth-sign-in.service';
 export * from './auth-sign-out.service';
 export * from './auth-sign-up.service';
+export * from './auth-user-created-verification.service';
 export * from './jwt-token.service';
 export * from './refresh-token.service';
