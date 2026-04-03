@@ -46,10 +46,3 @@ export const EmailResponseSchema = z.object({
    */
   message: z.string().describe('Response message'),
 });
-
-/**
- * Types inferred from schema definitions.
- */
-export type EmailInput = z.infer<typeof EmailInputSchema>;
-export type EmailTokenInput = z.infer<typeof EmailTokenInputSchema>;
-export type EmailResponse = z.infer<typeof EmailResponseSchema>;

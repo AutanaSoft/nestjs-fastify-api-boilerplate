@@ -5,9 +5,9 @@ import { PinoLogger } from 'nestjs-pino';
 import React from 'react';
 import { EMAIL_SENDER } from '../../constants/email.constants';
 import { EmailAuthPath } from '../../enums/email-auth-path.enum';
-import { type EmailSender } from '../../interfaces/email-sender.interface';
+import type { EmailSender, EmailTokenInput } from '../../interfaces';
 import { EmailTemplateProvider } from '../../providers/email-template.provider';
-import { EmailTokenInput, EmailTokenInputSchema } from '../../schemas';
+import { EmailTokenInputSchema } from '../../schemas';
 import VerifyEmailTemplate from '../../templates/auth/VerifyEmailTemplate';
 
 /**

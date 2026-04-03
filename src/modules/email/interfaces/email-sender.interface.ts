@@ -1,4 +1,4 @@
-import type { EmailAdapter } from '../schemas';
+import type { EmailAdapter } from './email-adapter.interface';
 
 /**
  * Defines the contract for email delivery services.

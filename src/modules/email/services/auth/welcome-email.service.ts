@@ -2,14 +2,14 @@ import { Inject, Injectable, InternalServerErrorException } from '@nestjs/common
 import { PinoLogger } from 'nestjs-pino';
 import React from 'react';
 import { EMAIL_SENDER } from '../../constants/email.constants';
-import { type EmailSender } from '../../interfaces/email-sender.interface';
+import type { EmailInput, EmailSender } from '../../interfaces';
 import { EmailTemplateProvider } from '../../providers/email-template.provider';
-import { EmailInput, EmailInputSchema } from '../../schemas';
+import { EmailInputSchema } from '../../schemas';
 import WelcomeEmailTemplate from '../../templates/auth/WelcomeEmailTemplate';
 
 /**
  * Domain service responsible for welcome email business logic.
- * Follows the flow: Controller -> Service -> Adapter/Provider.
+ * Follows the flow: Event/Use-case -> Service -> Adapter/Provider.
  */
 @Injectable()
 export class WelcomeEmailService {

@@ -20,8 +20,3 @@ export const EmailAdapterSchema = z.object({
    */
   html: z.string(),
 });
-
-/**
- * Types inferred from schema definitions.
- */
-export type EmailAdapter = z.infer<typeof EmailAdapterSchema>;
