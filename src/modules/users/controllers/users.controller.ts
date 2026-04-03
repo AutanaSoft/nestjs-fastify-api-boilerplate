@@ -8,9 +8,12 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ZodSerializerDto } from 'nestjs-zod';
+import { Roles } from '@/modules/auth/decorators';
+import { JwtAuthGuard, RolesGuard, SelfOrAdminGuard } from '@/modules/auth/guards';
 import {
   CreateUserDto,
   GetUserByEmailParamsDto,
@@ -35,6 +38,7 @@ import {
  * HTTP entry controller for users module operations.
  */
 @ApiTags('Users')
+@ApiBearerAuth()
 @Controller('users')
 export class UsersController {
   constructor(
@@ -50,6 +54,8 @@ export class UsersController {
    * Creates a user and returns a sanitized payload.
    */
   @Post()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
   @HttpCode(HttpStatus.CREATED)
   @ZodSerializerDto(UserModelDto)
   @ApiOperation({ summary: 'Create user' })
@@ -62,6 +68,7 @@ export class UsersController {
    * Updates a user profile.
    */
   @Patch(':id')
+  @UseGuards(JwtAuthGuard, SelfOrAdminGuard)
   @HttpCode(HttpStatus.OK)
   @ZodSerializerDto(UserModelDto)
   @ApiOperation({ summary: 'Update user' })
@@ -77,6 +84,7 @@ export class UsersController {
    * Changes a user password validating the current password.
    */
   @Patch(':id/password')
+  @UseGuards(JwtAuthGuard, SelfOrAdminGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Update user password' })
   @ApiResponse({ status: HttpStatus.NO_CONTENT })
@@ -91,6 +99,8 @@ export class UsersController {
    * Retrieves a user by email.
    */
   @Get('by-email/:email')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
   @HttpCode(HttpStatus.OK)
   @ZodSerializerDto(UserModelDto)
   @ApiOperation({ summary: 'Get user by email' })
@@ -103,6 +113,7 @@ export class UsersController {
    * Retrieves a user by id.
    */
   @Get(':id')
+  @UseGuards(JwtAuthGuard, SelfOrAdminGuard)
   @HttpCode(HttpStatus.OK)
   @ZodSerializerDto(UserModelDto)
   @ApiOperation({ summary: 'Get user by id' })
@@ -115,6 +126,8 @@ export class UsersController {
    * Retrieves users list applying optional filters.
    */
   @Get()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
   @HttpCode(HttpStatus.OK)
   @ZodSerializerDto(GetUsersResponseDto)
   @ApiOperation({ summary: 'Get users' })

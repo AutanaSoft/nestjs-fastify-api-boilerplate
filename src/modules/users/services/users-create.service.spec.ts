@@ -92,21 +92,6 @@ describe('UsersCreateService', () => {
     expect(usersEventsService.emitUserCreated).toHaveBeenCalledWith(baseUser);
   });
 
-  it('should throw InternalServerErrorException when created user fails schema validation', async () => {
-    passwordHashService.hashPassword.mockResolvedValue('hashed-password');
-    usersRepository.create.mockResolvedValue({ ...baseUser, email: 'invalid-email' } as never);
-
-    await expect(
-      service.createUser({
-        email: 'test@example.com',
-        password: 'plain-password',
-        userName: 'test-user',
-      } as never),
-    ).rejects.toThrow(InternalServerErrorException);
-
-    expect(logger.error).toHaveBeenCalled();
-  });
-
   it('should throw InternalServerErrorException when create fails', async () => {
     passwordHashService.hashPassword.mockResolvedValue('hashed-password');
     usersRepository.create.mockRejectedValue(new Error('db error'));

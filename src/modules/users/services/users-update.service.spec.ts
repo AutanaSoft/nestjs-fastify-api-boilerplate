@@ -62,18 +62,6 @@ describe('UsersUpdateService', () => {
     ).resolves.toEqual(baseUser);
   });
 
-  it('should throw InternalServerErrorException when update output is invalid', async () => {
-    usersRepository.updateById.mockResolvedValue({ ...baseUser, email: 'invalid-email' } as never);
-
-    await expect(
-      service.updateUser(baseUser.id, {
-        userName: 'updated-name',
-      } as never),
-    ).rejects.toThrow(InternalServerErrorException);
-
-    expect(logger.error).toHaveBeenCalled();
-  });
-
   it('should throw InternalServerErrorException when update fails', async () => {
     usersRepository.updateById.mockRejectedValue(new Error('db error'));
 

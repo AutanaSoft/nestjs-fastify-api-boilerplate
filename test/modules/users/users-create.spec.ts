@@ -11,6 +11,22 @@ export const usersCreateSuite = (
   describe('POST /users', () => {
     let app: NestFastifyApplication;
 
+    const getAdminToken = (): string => {
+      if (!context.adminUser.accessToken) {
+        throw new Error('Admin access token is required for users create suite');
+      }
+
+      return context.adminUser.accessToken;
+    };
+
+    const getRegularToken = (): string => {
+      if (!context.regularUser.accessToken) {
+        throw new Error('Regular access token is required for users create suite');
+      }
+
+      return context.regularUser.accessToken;
+    };
+
     beforeAll(async () => {
       app = getApp();
 
@@ -25,6 +41,18 @@ export const usersCreateSuite = (
       });
     });
 
+    it('should return 401 when token is missing', async () => {
+      await request(app.getHttpServer()).post('/users').send(createUserPayloadBase).expect(401);
+    });
+
+    it('should return 403 when requester is not admin', async () => {
+      await request(app.getHttpServer())
+        .post('/users')
+        .set('Authorization', `Bearer ${getRegularToken()}`)
+        .send(createUserPayloadBase)
+        .expect(403);
+    });
+
     it('should return 400 when all payload fields are invalid', async () => {
       const invalidPayload = {
         ...createUserPayloadBase,
@@ -33,7 +61,11 @@ export const usersCreateSuite = (
         userName: 'a',
       };
 
-      await request(app.getHttpServer()).post('/users').send(invalidPayload).expect(400);
+      await request(app.getHttpServer())
+        .post('/users')
+        .set('Authorization', `Bearer ${getAdminToken()}`)
+        .send(invalidPayload)
+        .expect(400);
     });
 
     it('should return 400 when only email is invalid', async () => {
@@ -42,7 +74,11 @@ export const usersCreateSuite = (
         email: 'invalid-email',
       };
 
-      await request(app.getHttpServer()).post('/users').send(invalidPayload).expect(400);
+      await request(app.getHttpServer())
+        .post('/users')
+        .set('Authorization', `Bearer ${getAdminToken()}`)
+        .send(invalidPayload)
+        .expect(400);
     });
 
     it('should return 400 when only userName is invalid', async () => {
@@ -51,7 +87,11 @@ export const usersCreateSuite = (
         userName: 'a',
       };
 
-      await request(app.getHttpServer()).post('/users').send(invalidPayload).expect(400);
+      await request(app.getHttpServer())
+        .post('/users')
+        .set('Authorization', `Bearer ${getAdminToken()}`)
+        .send(invalidPayload)
+        .expect(400);
     });
 
     it('should return 400 when only password is invalid', async () => {
@@ -60,33 +100,50 @@ export const usersCreateSuite = (
         password: '123',
       };
 
-      await request(app.getHttpServer()).post('/users').send(invalidPayload).expect(400);
+      await request(app.getHttpServer())
+        .post('/users')
+        .set('Authorization', `Bearer ${getAdminToken()}`)
+        .send(invalidPayload)
+        .expect(400);
     });
 
     it('should return 400 when email is missing', async () => {
       const { email: _email, ...payloadWithoutEmail } = createUserPayloadBase;
       void _email;
 
-      await request(app.getHttpServer()).post('/users').send(payloadWithoutEmail).expect(400);
+      await request(app.getHttpServer())
+        .post('/users')
+        .set('Authorization', `Bearer ${getAdminToken()}`)
+        .send(payloadWithoutEmail)
+        .expect(400);
     });
 
     it('should return 400 when userName is missing', async () => {
       const { userName: _userName, ...payloadWithoutUserName } = createUserPayloadBase;
       void _userName;
 
-      await request(app.getHttpServer()).post('/users').send(payloadWithoutUserName).expect(400);
+      await request(app.getHttpServer())
+        .post('/users')
+        .set('Authorization', `Bearer ${getAdminToken()}`)
+        .send(payloadWithoutUserName)
+        .expect(400);
     });
 
     it('should return 400 when password is missing', async () => {
       const { password: _password, ...payloadWithoutPassword } = createUserPayloadBase;
       void _password;
 
-      await request(app.getHttpServer()).post('/users').send(payloadWithoutPassword).expect(400);
-    });
-
-    it('should create a user with a valid payload', async () => {
       await request(app.getHttpServer())
         .post('/users')
+        .set('Authorization', `Bearer ${getAdminToken()}`)
+        .send(payloadWithoutPassword)
+        .expect(400);
+    });
+
+    it('should create a user with a valid payload when requester is admin', async () => {
+      await request(app.getHttpServer())
+        .post('/users')
+        .set('Authorization', `Bearer ${getAdminToken()}`)
         .send(createUserPayloadBase)
         .expect(201)
         .expect((res) => {
@@ -95,7 +152,9 @@ export const usersCreateSuite = (
           expect(body.email).toBe(createUserPayloadBase.email);
           expect(body.userName).toBe(createUserPayloadBase.userName);
 
-          context.createdUserIds.push(body.id as string);
+          const createdId = body.id as string;
+          context.createdUserIds.push(createdId);
+          context.managedUserId = createdId;
         });
     });
 
@@ -107,6 +166,7 @@ export const usersCreateSuite = (
 
       await request(app.getHttpServer())
         .post('/users')
+        .set('Authorization', `Bearer ${getAdminToken()}`)
         .send(duplicatedEmailPayload)
         .expect(409)
         .expect((res) => {
@@ -124,6 +184,7 @@ export const usersCreateSuite = (
 
       await request(app.getHttpServer())
         .post('/users')
+        .set('Authorization', `Bearer ${getAdminToken()}`)
         .send(duplicatedUserNamePayload)
         .expect(409)
         .expect((res) => {
