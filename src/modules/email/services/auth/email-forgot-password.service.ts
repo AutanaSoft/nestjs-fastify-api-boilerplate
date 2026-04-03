@@ -8,13 +8,13 @@ import { EmailAuthPath } from '../../enums/email-auth-path.enum';
 import type { EmailSender, EmailTokenInput } from '../../interfaces';
 import { EmailTemplateProvider } from '../../providers/email-template.provider';
 import { EmailTokenInputSchema } from '../../schemas';
-import ForgotPasswordTemplate from '../../templates/auth/ForgotPasswordTemplate';
+import EmailForgotPasswordTemplate from '../../templates/auth/EmailForgotPasswordTemplate';
 
 /**
  * Domain service responsible for password recovery email business logic.
  */
 @Injectable()
-export class ForgotPasswordEmailService {
+export class EmailForgotPasswordService {
   constructor(
     @Inject(EMAIL_SENDER) private readonly _emailSender: EmailSender,
     @Inject(appConfig.KEY)
@@ -22,7 +22,7 @@ export class ForgotPasswordEmailService {
     private readonly _templateProvider: EmailTemplateProvider,
     private readonly _logger: PinoLogger,
   ) {
-    this._logger.setContext(ForgotPasswordEmailService.name);
+    this._logger.setContext(EmailForgotPasswordService.name);
   }
 
   /**
@@ -42,7 +42,7 @@ export class ForgotPasswordEmailService {
       const ctaUrl = `${frontendUrl}${EmailAuthPath.RESET_PASSWORD}?token=${token}`;
 
       // 3. Render email template
-      const element = React.createElement(ForgotPasswordTemplate, {
+      const element = React.createElement(EmailForgotPasswordTemplate, {
         name: payload.name,
         href: ctaUrl,
       });

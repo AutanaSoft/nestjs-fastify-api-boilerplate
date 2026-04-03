@@ -4,7 +4,7 @@ import { BaseLayoutComponent } from '../components';
 /**
  * Password changed email template props.
  */
-interface PasswordChangedEmailProps {
+interface EmailPasswordChangedProps {
   /**
    * Recipient name.
    */
@@ -29,13 +29,13 @@ const previewText = 'Tu contraseña ha sido cambiada con éxito';
 /**
  * Password changed notification email template.
  *
- * @param {PasswordChangedEmailProps} props Template properties.
+ * @param {EmailPasswordChangedProps} props Template properties.
  * @returns {React.ReactNode} Email template component.
  */
-export const PasswordChangedEmailTemplate = ({
+export const EmailPasswordChangedTemplate = ({
   name,
   changedAt,
-}: PasswordChangedEmailProps): React.ReactNode => (
+}: EmailPasswordChangedProps): React.ReactNode => (
   <BaseLayoutComponent name={name} footerDisclaimer={disclaimer}>
     <Preview>{previewText}</Preview>
     <Section>
@@ -62,9 +62,9 @@ export const PasswordChangedEmailTemplate = ({
 /**
  * Preview props for the password changed email template.
  */
-PasswordChangedEmailTemplate.PreviewProps = {
+EmailPasswordChangedTemplate.PreviewProps = {
   name: 'Usuario de Prueba',
   changedAt: new Date().toLocaleString(),
-} as PasswordChangedEmailProps;
+} as EmailPasswordChangedProps;
 
-export default PasswordChangedEmailTemplate;
+export default EmailPasswordChangedTemplate;

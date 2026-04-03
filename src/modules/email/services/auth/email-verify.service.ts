@@ -8,13 +8,13 @@ import { EmailAuthPath } from '../../enums/email-auth-path.enum';
 import type { EmailSender, EmailTokenInput } from '../../interfaces';
 import { EmailTemplateProvider } from '../../providers/email-template.provider';
 import { EmailTokenInputSchema } from '../../schemas';
-import VerifyEmailTemplate from '../../templates/auth/VerifyEmailTemplate';
+import EmailVerifyTemplate from '../../templates/auth/EmailVerifyTemplate';
 
 /**
  * Domain service responsible for verification email business logic.
  */
 @Injectable()
-export class VerifyEmailService {
+export class EmailVerifyService {
   constructor(
     @Inject(EMAIL_SENDER) private readonly _emailSender: EmailSender,
     @Inject(appConfig.KEY)
@@ -22,7 +22,7 @@ export class VerifyEmailService {
     private readonly _templateProvider: EmailTemplateProvider,
     private readonly _logger: PinoLogger,
   ) {
-    this._logger.setContext(VerifyEmailService.name);
+    this._logger.setContext(EmailVerifyService.name);
   }
 
   /**
@@ -42,7 +42,7 @@ export class VerifyEmailService {
       const ctaUrl = `${frontendUrl}${EmailAuthPath.VERIFY_EMAIL}?token=${token}`;
 
       // 3. Render email template
-      const element = React.createElement(VerifyEmailTemplate, {
+      const element = React.createElement(EmailVerifyTemplate, {
         name: payload.name,
         href: ctaUrl,
       });

@@ -4,7 +4,7 @@ import BaseLayoutComponent from '../components/BaseLayoutComponent';
 /**
  * Forgot password email template props.
  */
-interface ForgotPasswordProps {
+interface EmailForgotPasswordProps {
   name: string;
   href: string;
 }
@@ -23,10 +23,13 @@ const previewText = 'Restablece tu contraseña en AutanaSoft para recuperar el a
 /**
  * Password recovery email template.
  *
- * @param {ForgotPasswordProps} props Template properties.
+ * @param {EmailForgotPasswordProps} props Template properties.
  * @returns {React.ReactNode} Email template component.
  */
-export const ForgotPasswordTemplate = ({ name, href }: ForgotPasswordProps): React.ReactNode => (
+export const EmailForgotPasswordTemplate = ({
+  name,
+  href,
+}: EmailForgotPasswordProps): React.ReactNode => (
   <BaseLayoutComponent name={name} footerDisclaimer={disclaimer}>
     {/* Body */}
     <Preview>{previewText}</Preview>
@@ -69,9 +72,9 @@ export const ForgotPasswordTemplate = ({ name, href }: ForgotPasswordProps): Rea
   </BaseLayoutComponent>
 );
 
-ForgotPasswordTemplate.PreviewProps = {
+EmailForgotPasswordTemplate.PreviewProps = {
   name: 'AutanaSoft',
   href: 'https://autanasoft.com/auth/reset-password?token=1234567890',
-} as ForgotPasswordProps;
+} as EmailForgotPasswordProps;
 
-export default ForgotPasswordTemplate;
+export default EmailForgotPasswordTemplate;

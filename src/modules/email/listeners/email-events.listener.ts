@@ -13,10 +13,10 @@ import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { EVENT_NAMES } from '@shared/constants/event-names.constants';
 import { PinoLogger } from 'nestjs-pino';
-import { ForgotPasswordEmailService } from '../services/auth/forgot-password-email.service';
-import { PasswordChangedEmailService } from '../services/auth/password-changed-email.service';
-import { VerifyEmailService } from '../services/auth/verify-email.service';
-import { WelcomeEmailService } from '../services/auth/welcome-email.service';
+import { EmailForgotPasswordService } from '../services/auth/email-forgot-password.service';
+import { EmailPasswordChangedService } from '../services/auth/email-password-changed.service';
+import { EmailVerifyService } from '../services/auth/email-verify.service';
+import { EmailWelcomeService } from '../services/auth/email-welcome.service';
 
 /**
  * Centralized Domain Event Listener for the Email module.
@@ -30,10 +30,10 @@ import { WelcomeEmailService } from '../services/auth/welcome-email.service';
 @Injectable()
 export class EmailEventsListener {
   constructor(
-    private readonly _verifyEmailService: VerifyEmailService,
-    private readonly _welcomeEmailService: WelcomeEmailService,
-    private readonly _forgotPasswordEmailService: ForgotPasswordEmailService,
-    private readonly _passwordChangedEmailService: PasswordChangedEmailService,
+    private readonly _verifyEmailService: EmailVerifyService,
+    private readonly _welcomeEmailService: EmailWelcomeService,
+    private readonly _forgotPasswordEmailService: EmailForgotPasswordService,
+    private readonly _passwordChangedEmailService: EmailPasswordChangedService,
     private readonly _logger: PinoLogger,
   ) {
     this._logger.setContext(EmailEventsListener.name);

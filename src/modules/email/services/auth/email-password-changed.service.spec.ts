@@ -4,10 +4,10 @@ import { PinoLogger } from 'nestjs-pino';
 import { EMAIL_SENDER } from '../../constants/email.constants';
 import { type EmailSender } from '../../interfaces/email-sender.interface';
 import { EmailTemplateProvider } from '../../providers/email-template.provider';
-import { WelcomeEmailService } from './welcome-email.service';
+import { EmailPasswordChangedService } from './email-password-changed.service';
 
-describe('WelcomeEmailService', () => {
-  let service: WelcomeEmailService;
+describe('EmailPasswordChangedService', () => {
+  let service: EmailPasswordChangedService;
   let emailSender: jest.Mocked<EmailSender>;
   let templateProvider: jest.Mocked<Pick<EmailTemplateProvider, 'render'>>;
   let logger: jest.Mocked<Pick<PinoLogger, 'setContext' | 'info' | 'error'>>;
@@ -18,7 +18,7 @@ describe('WelcomeEmailService', () => {
     };
 
     templateProvider = {
-      render: jest.fn().mockResolvedValue('<html><body>Welcome</body></html>'),
+      render: jest.fn().mockResolvedValue('<html><body>Changed</body></html>'),
     };
 
     logger = {
@@ -29,42 +29,42 @@ describe('WelcomeEmailService', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        WelcomeEmailService,
+        EmailPasswordChangedService,
         { provide: EMAIL_SENDER, useValue: emailSender },
         { provide: EmailTemplateProvider, useValue: templateProvider },
         { provide: PinoLogger, useValue: logger },
       ],
     }).compile();
 
-    service = module.get<WelcomeEmailService>(WelcomeEmailService);
+    service = module.get<EmailPasswordChangedService>(EmailPasswordChangedService);
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  describe('sendWelcomeEmail', () => {
+  describe('sendPasswordChangedEmail', () => {
     const mockInput = {
       to: 'test@example.com',
       name: 'Test User',
     };
 
-    it('should send the welcome email', async () => {
-      await expect(service.sendWelcomeEmail(mockInput)).resolves.toBeUndefined();
+    it('should send the password changed notification', async () => {
+      await expect(service.sendPasswordChangedEmail(mockInput)).resolves.toBeUndefined();
 
       expect(templateProvider.render).toHaveBeenCalledTimes(1);
       expect(emailSender.send).toHaveBeenCalledWith(
         expect.objectContaining({
           to: mockInput.to,
-          subject: '¡Bienvenido a AutanaSoft!',
+          subject: 'Your password was changed successfully',
         }),
       );
     });
 
-    it('should throw InternalServerErrorException when email sender fails', async () => {
-      emailSender.send.mockRejectedValue(new Error('SMTP Error'));
+    it('should throw InternalServerErrorException when sender fails', async () => {
+      emailSender.send.mockRejectedValue(new Error('Critical error'));
 
-      await expect(service.sendWelcomeEmail(mockInput)).rejects.toThrow(
+      await expect(service.sendPasswordChangedEmail(mockInput)).rejects.toThrow(
         InternalServerErrorException,
       );
       expect(logger.error).toHaveBeenCalledTimes(1);

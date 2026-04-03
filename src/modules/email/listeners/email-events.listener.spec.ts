@@ -8,21 +8,21 @@ import { UserCreatedEvent } from '@modules/users/events';
 import { EVENT_NAMES } from '@shared/constants/event-names.constants';
 import { Test, type TestingModule } from '@nestjs/testing';
 import { PinoLogger } from 'nestjs-pino';
-import { ForgotPasswordEmailService } from '../services/auth/forgot-password-email.service';
-import { PasswordChangedEmailService } from '../services/auth/password-changed-email.service';
-import { VerifyEmailService } from '../services/auth/verify-email.service';
-import { WelcomeEmailService } from '../services/auth/welcome-email.service';
+import { EmailForgotPasswordService } from '../services/auth/email-forgot-password.service';
+import { EmailPasswordChangedService } from '../services/auth/email-password-changed.service';
+import { EmailVerifyService } from '../services/auth/email-verify.service';
+import { EmailWelcomeService } from '../services/auth/email-welcome.service';
 import { EmailEventsListener } from './email-events.listener';
 
 describe('EmailEventsListener', () => {
   let listener: EmailEventsListener;
-  let verifyEmailService: jest.Mocked<Pick<VerifyEmailService, 'sendVerifyEmail'>>;
-  let welcomeEmailService: jest.Mocked<Pick<WelcomeEmailService, 'sendWelcomeEmail'>>;
+  let verifyEmailService: jest.Mocked<Pick<EmailVerifyService, 'sendVerifyEmail'>>;
+  let welcomeEmailService: jest.Mocked<Pick<EmailWelcomeService, 'sendWelcomeEmail'>>;
   let forgotPasswordEmailService: jest.Mocked<
-    Pick<ForgotPasswordEmailService, 'sendForgotPasswordEmail'>
+    Pick<EmailForgotPasswordService, 'sendForgotPasswordEmail'>
   >;
   let passwordChangedEmailService: jest.Mocked<
-    Pick<PasswordChangedEmailService, 'sendPasswordChangedEmail'>
+    Pick<EmailPasswordChangedService, 'sendPasswordChangedEmail'>
   >;
   let logger: jest.Mocked<Pick<PinoLogger, 'setContext' | 'info' | 'error'>>;
 
@@ -44,10 +44,10 @@ describe('EmailEventsListener', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         EmailEventsListener,
-        { provide: VerifyEmailService, useValue: verifyEmailService },
-        { provide: WelcomeEmailService, useValue: welcomeEmailService },
-        { provide: ForgotPasswordEmailService, useValue: forgotPasswordEmailService },
-        { provide: PasswordChangedEmailService, useValue: passwordChangedEmailService },
+        { provide: EmailVerifyService, useValue: verifyEmailService },
+        { provide: EmailWelcomeService, useValue: welcomeEmailService },
+        { provide: EmailForgotPasswordService, useValue: forgotPasswordEmailService },
+        { provide: EmailPasswordChangedService, useValue: passwordChangedEmailService },
         { provide: PinoLogger, useValue: logger },
       ],
     }).compile();

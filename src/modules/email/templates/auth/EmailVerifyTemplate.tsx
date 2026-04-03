@@ -5,7 +5,7 @@ import BaseLayoutComponent from '../components/BaseLayoutComponent';
 /**
  * Verification email template props.
  */
-interface VerifyEmailProps {
+interface EmailVerifyProps {
   name: string;
   href: string;
 }
@@ -24,10 +24,10 @@ const previewText = 'Confirma tu correo electrónico para completar el registro 
 /**
  * Account verification email template.
  *
- * @param {VerifyEmailProps} props Template properties.
+ * @param {EmailVerifyProps} props Template properties.
  * @returns {React.Node} Email template component.
  */
-export const VerifyEmailTemplate = ({ name, href }: VerifyEmailProps): React.ReactNode => (
+export const EmailVerifyTemplate = ({ name, href }: EmailVerifyProps): React.ReactNode => (
   <BaseLayoutComponent name={name} footerDisclaimer={disclaimer}>
     {/* Body */}
     <Preview>{previewText}</Preview>
@@ -70,9 +70,9 @@ export const VerifyEmailTemplate = ({ name, href }: VerifyEmailProps): React.Rea
 /**
  * Preview props for the verification email template.
  */
-VerifyEmailTemplate.PreviewProps = {
+EmailVerifyTemplate.PreviewProps = {
   name: 'AutanaSoft',
   href: 'https://autanasoft.com/auth/verify-email?token=1234567890',
-} as VerifyEmailProps;
+} as EmailVerifyProps;
 
-export default VerifyEmailTemplate;
+export default EmailVerifyTemplate;

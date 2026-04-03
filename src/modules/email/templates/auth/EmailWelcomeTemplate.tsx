@@ -4,7 +4,7 @@ import { BaseLayoutComponent } from '../components';
 /**
  * Welcome email template props.
  */
-interface WelcomeEmailProps {
+interface EmailWelcomeProps {
   name: string;
 }
 
@@ -21,10 +21,10 @@ const previewText = 'Bienvenido a AutanaSoft';
 /**
  * Welcome email template.
  *
- * @param {WelcomeEmailProps} props Template properties.
+ * @param {EmailWelcomeProps} props Template properties.
  * @returns {React.ReactNode} Email template component.
  */
-export const WelcomeEmailTemplate = ({ name }: WelcomeEmailProps): React.ReactNode => (
+export const EmailWelcomeTemplate = ({ name }: EmailWelcomeProps): React.ReactNode => (
   <BaseLayoutComponent name={name} footerDisclaimer={disclaimer}>
     {/* Body */}
     <Preview>{previewText}</Preview>
@@ -52,8 +52,8 @@ export const WelcomeEmailTemplate = ({ name }: WelcomeEmailProps): React.ReactNo
 /**
  * Preview props for the welcome email template.
  */
-WelcomeEmailTemplate.PreviewProps = {
+EmailWelcomeTemplate.PreviewProps = {
   name: 'AutanaSoft',
-} as WelcomeEmailProps;
+} as EmailWelcomeProps;
 
-export default WelcomeEmailTemplate;
+export default EmailWelcomeTemplate;

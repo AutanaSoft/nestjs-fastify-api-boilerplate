@@ -6,10 +6,10 @@ import { ResendEmailAdapter, SmtpEmailAdapter } from './adapters';
 import { EmailTemplateProvider } from './providers';
 import {
   EmailDispatcherService,
-  ForgotPasswordEmailService,
-  PasswordChangedEmailService,
-  VerifyEmailService,
-  WelcomeEmailService,
+  EmailForgotPasswordService,
+  EmailPasswordChangedService,
+  EmailVerifyService,
+  EmailWelcomeService,
 } from './services';
 
 @Module({
@@ -30,17 +30,17 @@ import {
       provide: EMAIL_SENDER,
       useClass: EmailDispatcherService,
     },
-    WelcomeEmailService,
-    VerifyEmailService,
-    ForgotPasswordEmailService,
-    PasswordChangedEmailService,
+    EmailWelcomeService,
+    EmailVerifyService,
+    EmailForgotPasswordService,
+    EmailPasswordChangedService,
     EmailEventsListener,
   ],
   exports: [
-    WelcomeEmailService,
-    VerifyEmailService,
-    ForgotPasswordEmailService,
-    PasswordChangedEmailService,
+    EmailWelcomeService,
+    EmailVerifyService,
+    EmailForgotPasswordService,
+    EmailPasswordChangedService,
   ],
 })
 export class EmailModule {}
