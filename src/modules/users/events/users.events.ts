@@ -1,22 +1,15 @@
-import type { UserEntity } from '../schemas';
+import type { UserEventPayload } from '../interfaces';
 
 /**
  * Event emitted when a user is created.
  */
 export class UserCreatedEvent {
-  constructor(public readonly payload: UserEntity) {}
+  constructor(public readonly payload: UserEventPayload) {}
 }
 
 /**
- * Event emitted when a user is updated.
+ * Event emitted when a user password is updated.
  */
 export class UserPasswordUpdatedEvent {
-  constructor(public readonly payload: UserEntity) {}
-}
-
-/**
- * Event emitted when a user is updated.
- */
-export class UserEmailVerifiedEvent {
-  constructor(public readonly payload: UserEntity) {}
+  constructor(public readonly payload: UserEventPayload) {}
 }

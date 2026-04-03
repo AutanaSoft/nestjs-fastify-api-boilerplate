@@ -1,7 +1,6 @@
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
-import request from 'supertest';
 import { randomUUID } from 'node:crypto';
-import { createUserPayloadBase } from '../../utils/test-constants';
+import request from 'supertest';
 import type { UsersE2EContext } from './users.e2e.types';
 
 export const usersSecuritySuite = (
@@ -10,35 +9,72 @@ export const usersSecuritySuite = (
 ) => {
   describe('Users Security (e2e)', () => {
     let app: NestFastifyApplication;
-    let createdUserId: string;
-    let currentPassword = createUserPayloadBase.password;
+    let regularUserId: string;
+    let currentPassword: string;
+
+    const getRegularToken = (): string => {
+      if (!context.regularUser.accessToken) {
+        throw new Error('Regular access token is required for users security suite');
+      }
+
+      return context.regularUser.accessToken;
+    };
 
     beforeAll(() => {
       app = getApp();
 
-      const [firstCreatedUserId] = context.createdUserIds;
-      if (!firstCreatedUserId) {
-        throw new Error('usersSecuritySuite requires a created user id in context');
+      if (!context.regularUser.id) {
+        throw new Error('usersSecuritySuite requires regular user id from e2e bootstrap');
       }
 
-      createdUserId = firstCreatedUserId;
+      regularUserId = context.regularUser.id;
+      currentPassword = context.regularUser.password;
     });
 
     describe('PATCH /users/:id/password', () => {
-      it('should return 400 when id is not a valid uuid', async () => {
+      it('should return 401 when token is missing', async () => {
         await request(app.getHttpServer())
-          .patch('/users/invalid-id/password')
+          .patch(`/users/${regularUserId}/password`)
           .send({
             current: currentPassword,
             new: 'NextPassword123!',
             confirm: 'NextPassword123!',
           })
-          .expect(400);
+          .expect(401);
+      });
+
+      it('should return 403 when requester updates a foreign user password', async () => {
+        if (!context.managedUserId) {
+          throw new Error('managedUserId is required for forbidden password update test');
+        }
+
+        await request(app.getHttpServer())
+          .patch(`/users/${context.managedUserId}/password`)
+          .set('Authorization', `Bearer ${getRegularToken()}`)
+          .send({
+            current: currentPassword,
+            new: 'NextPassword123!',
+            confirm: 'NextPassword123!',
+          })
+          .expect(403);
+      });
+
+      it('should return 403 when id does not match current requester', async () => {
+        await request(app.getHttpServer())
+          .patch(`/users/${randomUUID()}/password`)
+          .set('Authorization', `Bearer ${getRegularToken()}`)
+          .send({
+            current: currentPassword,
+            new: 'NextPassword123!',
+            confirm: 'NextPassword123!',
+          })
+          .expect(403);
       });
 
       it('should return 400 when all password fields are invalid', async () => {
         await request(app.getHttpServer())
-          .patch(`/users/${createdUserId}/password`)
+          .patch(`/users/${regularUserId}/password`)
+          .set('Authorization', `Bearer ${getRegularToken()}`)
           .send({
             current: '123',
             new: '123',
@@ -49,7 +85,8 @@ export const usersSecuritySuite = (
 
       it('should return 400 when new and confirm do not match', async () => {
         await request(app.getHttpServer())
-          .patch(`/users/${createdUserId}/password`)
+          .patch(`/users/${regularUserId}/password`)
+          .set('Authorization', `Bearer ${getRegularToken()}`)
           .send({
             current: currentPassword,
             new: 'NextPassword123!',
@@ -58,20 +95,10 @@ export const usersSecuritySuite = (
           .expect(400);
       });
 
-      it('should return 404 when user does not exist', async () => {
-        await request(app.getHttpServer())
-          .patch(`/users/${randomUUID()}/password`)
-          .send({
-            current: currentPassword,
-            new: 'NextPassword123!',
-            confirm: 'NextPassword123!',
-          })
-          .expect(404);
-      });
-
       it('should return 400 when current password is invalid', async () => {
         await request(app.getHttpServer())
-          .patch(`/users/${createdUserId}/password`)
+          .patch(`/users/${regularUserId}/password`)
+          .set('Authorization', `Bearer ${getRegularToken()}`)
           .send({
             current: 'OtherPass123!',
             new: 'NextPassword123!',
@@ -85,11 +112,12 @@ export const usersSecuritySuite = (
           });
       });
 
-      it('should update password with valid payload', async () => {
+      it('should update password with valid payload when requester is owner', async () => {
         const nextPassword = 'NextPassword123!';
 
         await request(app.getHttpServer())
-          .patch(`/users/${createdUserId}/password`)
+          .patch(`/users/${regularUserId}/password`)
+          .set('Authorization', `Bearer ${getRegularToken()}`)
           .send({
             current: currentPassword,
             new: nextPassword,
@@ -98,36 +126,7 @@ export const usersSecuritySuite = (
           .expect(204);
 
         currentPassword = nextPassword;
-      });
-    });
-
-    describe('PATCH /users/verify/by-email/:email', () => {
-      it('should return 400 when email param format is invalid', async () => {
-        await request(app.getHttpServer())
-          .patch('/users/verify/by-email/invalid-email')
-          .expect(400);
-      });
-
-      it('should return 404 when user by email does not exist', async () => {
-        await request(app.getHttpServer())
-          .patch('/users/verify/by-email/not-found-user@example.com')
-          .expect(404);
-      });
-
-      it('should verify email and keep user contract sanitized', async () => {
-        await request(app.getHttpServer())
-          .patch(`/users/verify/by-email/${createUserPayloadBase.email}`)
-          .expect(204);
-
-        await request(app.getHttpServer())
-          .get(`/users/by-email/${createUserPayloadBase.email}`)
-          .expect(200)
-          .expect((res) => {
-            const body = res.body as Record<string, unknown>;
-            expect(body.id).toBe(createdUserId);
-            expect(body.emailVerifiedAt).not.toBeNull();
-            expect(body.password).toBeUndefined();
-          });
+        context.regularUser.password = nextPassword;
       });
     });
   });

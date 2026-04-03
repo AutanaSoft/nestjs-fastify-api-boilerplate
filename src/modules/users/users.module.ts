@@ -1,32 +1,50 @@
 import { DatabaseModule } from '@modules/database/database.module';
 import { SecurityModule } from '@modules/security/security.module';
 import { Module } from '@nestjs/common';
-import { UsersController } from './controllers';
+import { RolesGuard, SelfGuard } from '@/modules/auth/guards';
+import { UsersAdminController, UsersProfileController } from './controllers';
 import { PrismaUsersRepository, UsersRepository } from './repositories';
 import {
+  UsersCreateService,
   UsersEventsService,
-  UsersReadService,
-  UsersSecurityService,
-  UsersWriteService,
+  UsersGetByEmailService,
+  UsersGetByIdService,
+  UsersGetMeService,
+  UsersListService,
+  UsersUpdatePasswordService,
+  UsersUpdateService,
 } from './services';
 
+/**
+ * Users module wiring.
+ */
 @Module({
   imports: [DatabaseModule, SecurityModule],
-  controllers: [UsersController],
+  controllers: [UsersProfileController, UsersAdminController],
   providers: [
-    UsersWriteService,
-    UsersReadService,
-    UsersSecurityService,
+    UsersCreateService,
+    UsersUpdateService,
+    UsersUpdatePasswordService,
+    UsersGetByEmailService,
+    UsersGetByIdService,
+    UsersGetMeService,
+    UsersListService,
     UsersEventsService,
+    RolesGuard,
+    SelfGuard,
     {
       provide: UsersRepository,
       useClass: PrismaUsersRepository,
     },
   ],
   exports: [
-    UsersWriteService,
-    UsersReadService,
-    UsersSecurityService,
+    UsersCreateService,
+    UsersUpdateService,
+    UsersUpdatePasswordService,
+    UsersGetByEmailService,
+    UsersGetByIdService,
+    UsersGetMeService,
+    UsersListService,
     UsersEventsService,
     UsersRepository,
   ],

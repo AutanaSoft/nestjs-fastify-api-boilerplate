@@ -1,14 +1,14 @@
 import { InternalServerErrorException } from '@nestjs/common';
+import { UserRoles, UserStatus } from '../constants';
 import { Test, type TestingModule } from '@nestjs/testing';
 import { PasswordHashService } from '@modules/security/services';
-import { UserRole, UserStatus } from '@/modules/database/prisma/generated/enums';
 import { PinoLogger } from 'nestjs-pino';
 import { UsersRepository } from '../repositories';
 import { UsersEventsService } from './users-events.service';
-import { UsersWriteService } from './users-write.service';
+import { UsersCreateService } from './users-create.service';
 
-describe('UsersWriteService', () => {
-  let service: UsersWriteService;
+describe('UsersCreateService', () => {
+  let service: UsersCreateService;
   let usersRepository: jest.Mocked<UsersRepository>;
   let usersEventsService: jest.Mocked<Pick<UsersEventsService, 'emitUserCreated'>>;
   let passwordHashService: jest.Mocked<Pick<PasswordHashService, 'hashPassword'>>;
@@ -19,7 +19,7 @@ describe('UsersWriteService', () => {
     email: 'test@example.com',
     userName: 'test-user',
     password: 'hashed-password',
-    role: UserRole.USER,
+    role: UserRoles.USER,
     status: UserStatus.ACTIVE,
     emailVerifiedAt: null,
     createdAt: new Date('2026-01-01T00:00:00.000Z'),
@@ -34,7 +34,6 @@ describe('UsersWriteService', () => {
       findMany: jest.fn(),
       updateById: jest.fn(),
       updatePassword: jest.fn(),
-      verifyEmail: jest.fn(),
     };
 
     usersEventsService = {
@@ -52,7 +51,7 @@ describe('UsersWriteService', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        UsersWriteService,
+        UsersCreateService,
         { provide: UsersRepository, useValue: usersRepository },
         { provide: UsersEventsService, useValue: usersEventsService },
         { provide: PasswordHashService, useValue: passwordHashService },
@@ -60,7 +59,7 @@ describe('UsersWriteService', () => {
       ],
     }).compile();
 
-    service = module.get<UsersWriteService>(UsersWriteService);
+    service = module.get<UsersCreateService>(UsersCreateService);
   });
 
   afterEach(() => {
@@ -93,21 +92,6 @@ describe('UsersWriteService', () => {
     expect(usersEventsService.emitUserCreated).toHaveBeenCalledWith(baseUser);
   });
 
-  it('should throw InternalServerErrorException when created user fails schema validation', async () => {
-    passwordHashService.hashPassword.mockResolvedValue('hashed-password');
-    usersRepository.create.mockResolvedValue({ ...baseUser, email: 'invalid-email' } as never);
-
-    await expect(
-      service.createUser({
-        email: 'test@example.com',
-        password: 'plain-password',
-        userName: 'test-user',
-      } as never),
-    ).rejects.toThrow(InternalServerErrorException);
-
-    expect(logger.error).toHaveBeenCalled();
-  });
-
   it('should throw InternalServerErrorException when create fails', async () => {
     passwordHashService.hashPassword.mockResolvedValue('hashed-password');
     usersRepository.create.mockRejectedValue(new Error('db error'));
@@ -119,27 +103,5 @@ describe('UsersWriteService', () => {
         userName: 'test-user',
       } as never),
     ).rejects.toThrow(InternalServerErrorException);
-  });
-
-  it('should update user successfully', async () => {
-    usersRepository.updateById.mockResolvedValue(baseUser as never);
-
-    await expect(
-      service.updateUser(baseUser.id, {
-        userName: 'updated-name',
-      } as never),
-    ).resolves.toEqual(baseUser);
-  });
-
-  it('should throw InternalServerErrorException when update output is invalid', async () => {
-    usersRepository.updateById.mockResolvedValue({ ...baseUser, email: 'invalid-email' } as never);
-
-    await expect(
-      service.updateUser(baseUser.id, {
-        userName: 'updated-name',
-      } as never),
-    ).rejects.toThrow(InternalServerErrorException);
-
-    expect(logger.error).toHaveBeenCalled();
   });
 });

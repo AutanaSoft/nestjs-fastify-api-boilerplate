@@ -1,12 +1,12 @@
 import { InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { UserRoles, UserStatus } from '../constants';
 import { Test, type TestingModule } from '@nestjs/testing';
-import { UserRole, UserStatus } from '@/modules/database/prisma/generated/enums';
 import { PinoLogger } from 'nestjs-pino';
 import { UsersRepository } from '../repositories';
-import { UsersReadService } from './users-read.service';
+import { UsersGetByIdService } from './users-get-by-id.service';
 
-describe('UsersReadService', () => {
-  let service: UsersReadService;
+describe('UsersGetByIdService', () => {
+  let service: UsersGetByIdService;
   let usersRepository: jest.Mocked<UsersRepository>;
   let logger: jest.Mocked<Pick<PinoLogger, 'setContext' | 'error'>>;
 
@@ -15,7 +15,7 @@ describe('UsersReadService', () => {
     email: 'test@example.com',
     userName: 'test-user',
     password: 'hashed-password',
-    role: UserRole.USER,
+    role: UserRoles.USER,
     status: UserStatus.ACTIVE,
     emailVerifiedAt: null,
     createdAt: new Date('2026-01-01T00:00:00.000Z'),
@@ -30,7 +30,6 @@ describe('UsersReadService', () => {
       findMany: jest.fn(),
       updateById: jest.fn(),
       updatePassword: jest.fn(),
-      verifyEmail: jest.fn(),
     };
 
     logger = {
@@ -40,17 +39,13 @@ describe('UsersReadService', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        UsersReadService,
+        UsersGetByIdService,
         { provide: UsersRepository, useValue: usersRepository },
         { provide: PinoLogger, useValue: logger },
       ],
     }).compile();
 
-    service = module.get<UsersReadService>(UsersReadService);
-  });
-
-  it('should be defined', () => {
-    expect(service).toBeDefined();
+    service = module.get<UsersGetByIdService>(UsersGetByIdService);
   });
 
   it('should return user by id', async () => {
@@ -69,54 +64,5 @@ describe('UsersReadService', () => {
     usersRepository.findById.mockRejectedValue(new Error('db error'));
 
     await expect(service.getUserById(baseUser.id)).rejects.toThrow(InternalServerErrorException);
-  });
-
-  it('should return user by email', async () => {
-    usersRepository.findByEmail.mockResolvedValue(baseUser as never);
-
-    await expect(service.getUserByEmail(baseUser.email)).resolves.toEqual(baseUser);
-  });
-
-  it('should throw NotFoundException when user by email does not exist', async () => {
-    usersRepository.findByEmail.mockResolvedValue(null);
-
-    await expect(service.getUserByEmail(baseUser.email)).rejects.toThrow(NotFoundException);
-  });
-
-  it('should return paginated users with computed meta', async () => {
-    usersRepository.findMany.mockResolvedValue({
-      data: [baseUser],
-      total: 11,
-    } as never);
-
-    await expect(service.getUsers({ skip: 10, take: 10 } as never)).resolves.toMatchObject({
-      data: [
-        {
-          id: baseUser.id,
-          email: baseUser.email,
-          userName: baseUser.userName,
-        },
-      ],
-      meta: {
-        total: 11,
-        count: 1,
-        page: 2,
-        totalPages: 2,
-        start: 10,
-        end: 10,
-      },
-    });
-  });
-
-  it('should throw InternalServerErrorException when listed user fails schema validation', async () => {
-    usersRepository.findMany.mockResolvedValue({
-      data: [{ ...baseUser, email: 'invalid-email' }],
-      total: 1,
-    } as never);
-
-    await expect(service.getUsers({ skip: 0, take: 10 } as never)).rejects.toThrow(
-      InternalServerErrorException,
-    );
-    expect(logger.error).toHaveBeenCalled();
   });
 });

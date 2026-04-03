@@ -2,8 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { EVENT_NAMES } from '@shared/constants/event-names.constants';
 import { PinoLogger } from 'nestjs-pino';
-import { UserCreatedEvent, UserPasswordUpdatedEvent, UserEmailVerifiedEvent } from '../events';
-import type { UserEntity } from '../schemas';
+import { UserCreatedEvent, UserPasswordUpdatedEvent } from '../events';
+import type { UserEntity } from '../interfaces';
+import { UserEventPayloadSchema } from '../schemas';
 
 /**
  * Emits users domain events across the system.
@@ -26,8 +27,10 @@ export class UsersEventsService {
    * @param {UserEntity} user The newly created user payload.
    */
   emitUserCreated(user: UserEntity): void {
-    this._eventEmitter.emit(EVENT_NAMES.USER.CREATED, new UserCreatedEvent(user));
-    this._logger.debug({ userId: user.id }, 'Emitted USER.CREATED');
+    const payload = UserEventPayloadSchema.parse(user);
+
+    this._eventEmitter.emit(EVENT_NAMES.USER.CREATED, new UserCreatedEvent(payload));
+    this._logger.debug({ userId: payload.id }, 'Emitted USER.CREATED');
   }
 
   /**
@@ -36,17 +39,12 @@ export class UsersEventsService {
    * @param {UserEntity} user The updated user payload.
    */
   emitUserPasswordUpdated(user: UserEntity): void {
-    this._eventEmitter.emit(EVENT_NAMES.USER.UPDATED_PASSWORD, new UserPasswordUpdatedEvent(user));
-    this._logger.debug({ userId: user.id }, 'Emitted USER.UPDATED_PASSWORD');
-  }
+    const payload = UserEventPayloadSchema.parse(user);
 
-  /**
-   * Emits a domain event signaling that a user's email has been verified.
-   *
-   * @param {UserEntity} user The updated user payload.
-   */
-  emitUserEmailVerified(user: UserEntity): void {
-    this._eventEmitter.emit(EVENT_NAMES.USER.VERIFIED_EMAIL, new UserEmailVerifiedEvent(user));
-    this._logger.debug({ userId: user.id }, 'Emitted USER.VERIFIED_EMAIL');
+    this._eventEmitter.emit(
+      EVENT_NAMES.USER.UPDATED_PASSWORD,
+      new UserPasswordUpdatedEvent(payload),
+    );
+    this._logger.debug({ userId: payload.id }, 'Emitted USER.UPDATED_PASSWORD');
   }
 }
