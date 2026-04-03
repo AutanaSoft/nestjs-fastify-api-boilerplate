@@ -1,7 +1,5 @@
 import {
   EmailSchema,
-  IsoDateTimeFromDateSchema,
-  NullableIsoDateTimeFromDateSchema,
   UserNameSchema,
   UserRolesEnumSchema,
   UserStatusEnumSchema,
@@ -20,16 +18,4 @@ export const UserEntitySchema = z.object({
   emailVerifiedAt: z.date().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
-});
-
-/**
- * User model schema for external API responses.
- *
- * Accepts internal `Date` values and serializes them as ISO datetime strings,
- * while omitting sensitive fields.
- */
-export const UserModelSchema = UserEntitySchema.omit({ password: true }).extend({
-  emailVerifiedAt: NullableIsoDateTimeFromDateSchema,
-  createdAt: IsoDateTimeFromDateSchema,
-  updatedAt: IsoDateTimeFromDateSchema,
 });

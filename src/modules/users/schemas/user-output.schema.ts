@@ -1,6 +1,22 @@
-import { createPaginatedResponseSchema } from '@/shared/schemas';
+import {
+  createPaginatedResponseSchema,
+  IsoDateTimeFromDateSchema,
+  NullableIsoDateTimeFromDateSchema,
+} from '@/shared/schemas';
 import { z } from 'zod';
-import { UserModelSchema } from './user-entity.schema';
+import { UserEntitySchema } from './user-entity.schema';
+
+/**
+ * User model schema for external API responses.
+ *
+ * Accepts internal `Date` values and serializes them as ISO datetime strings,
+ * while omitting sensitive fields.
+ */
+export const UserModelSchema = UserEntitySchema.omit({ password: true }).extend({
+  emailVerifiedAt: NullableIsoDateTimeFromDateSchema,
+  createdAt: IsoDateTimeFromDateSchema,
+  updatedAt: IsoDateTimeFromDateSchema,
+});
 
 /** Output schema for users listing endpoint. */
 export const GetUsersResponseSchema = createPaginatedResponseSchema(UserModelSchema);
