@@ -15,6 +15,9 @@ import {
   UsersUpdateService,
 } from './services';
 
+/**
+ * Users module wiring.
+ */
 @Module({
   imports: [DatabaseModule, SecurityModule],
   controllers: [UsersProfileController, UsersAdminController],

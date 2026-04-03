@@ -15,6 +15,15 @@ export class UsersListService {
     this._logger.setContext(UsersListService.name);
   }
 
+  /**
+   * Retrieves a paginated users list.
+   *
+   * The service validates each returned record against the response schema
+   * before building pagination metadata.
+   *
+   * @param {GetUsersInput} payload Pagination and filters input.
+   * @returns {Promise<GetUsersResponse>} Paginated users response.
+   */
   async getUsers(payload: GetUsersInput): Promise<GetUsersResponse> {
     let data: UserEntity[];
     let total: number;

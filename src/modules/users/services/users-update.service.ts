@@ -14,6 +14,13 @@ export class UsersUpdateService {
     this._logger.setContext(UsersUpdateService.name);
   }
 
+  /**
+   * Updates a user profile by identifier.
+   *
+   * @param {string} id User identifier.
+   * @param {UpdateUserInput} payload Partial profile update data.
+   * @returns {Promise<UserEntity>} Updated user entity.
+   */
   async updateUser(id: string, payload: UpdateUserInput): Promise<UserEntity> {
     let updatedUser: UserEntity;
     try {

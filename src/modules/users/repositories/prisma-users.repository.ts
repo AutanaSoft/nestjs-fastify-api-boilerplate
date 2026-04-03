@@ -29,6 +29,12 @@ export class PrismaUsersRepository extends UsersRepository {
     super();
   }
 
+  /**
+   * Persists a new user using Prisma.
+   *
+   * @param {CreateUserData} payload Persistence data for user creation.
+   * @returns {Promise<UserEntity>} Created and contract-validated user.
+   */
   async create(payload: CreateUserData): Promise<UserEntity> {
     try {
       const createdUser = await this._prismaService.userDbEntity.create({
@@ -41,6 +47,12 @@ export class PrismaUsersRepository extends UsersRepository {
     }
   }
 
+  /**
+   * Finds a user by identifier using Prisma.
+   *
+   * @param {string} id User identifier.
+   * @returns {Promise<UserEntity | null>} Found user or `null`.
+   */
   async findById(id: string): Promise<UserEntity | null> {
     try {
       const foundUser = await this._prismaService.userDbEntity.findUnique({
@@ -53,6 +65,12 @@ export class PrismaUsersRepository extends UsersRepository {
     }
   }
 
+  /**
+   * Finds a user by email using Prisma.
+   *
+   * @param {string} email User email.
+   * @returns {Promise<UserEntity | null>} Found user or `null`.
+   */
   async findByEmail(email: string): Promise<UserEntity | null> {
     try {
       const foundUser = await this._prismaService.userDbEntity.findUnique({
@@ -65,6 +83,12 @@ export class PrismaUsersRepository extends UsersRepository {
     }
   }
 
+  /**
+   * Lists users with pagination and filters using Prisma transaction.
+   *
+   * @param {GetUsersInput} filters Pagination and filtering input.
+   * @returns {Promise<{ data: UserEntity[]; total: number }>} Contract-validated users and count.
+   */
   async findMany(filters: GetUsersInput): Promise<{ data: UserEntity[]; total: number }> {
     try {
       const where: Prisma.UserDbEntityWhereInput = {
@@ -114,6 +138,13 @@ export class PrismaUsersRepository extends UsersRepository {
     }
   }
 
+  /**
+   * Updates a user by identifier using Prisma.
+   *
+   * @param {string} id User identifier.
+   * @param {UpdateUserInput} payload Partial update payload.
+   * @returns {Promise<UserEntity>} Updated and contract-validated user.
+   */
   async updateById(id: string, payload: UpdateUserInput): Promise<UserEntity> {
     try {
       const updatedUser = await this._prismaService.userDbEntity.update({
@@ -127,6 +158,13 @@ export class PrismaUsersRepository extends UsersRepository {
     }
   }
 
+  /**
+   * Updates a user's password hash using Prisma.
+   *
+   * @param {string} id User identifier.
+   * @param {string} password Hashed password value.
+   * @returns {Promise<UserEntity>} Updated and contract-validated user.
+   */
   async updatePassword(id: string, password: string): Promise<UserEntity> {
     try {
       const updatedUser = await this._prismaService.userDbEntity.update({
@@ -140,6 +178,13 @@ export class PrismaUsersRepository extends UsersRepository {
     }
   }
 
+  /**
+   * Maps unknown persistence errors into users persistence error hierarchy.
+   *
+   * @param {unknown} error Original thrown error.
+   * @param {string} contractMessage Contract validation fallback message.
+   * @returns {never} Always throws a mapped persistence error.
+   */
   private _throwPersistenceError(error: unknown, contractMessage: string): never {
     if (error instanceof UsersPersistenceError) {
       throw error;

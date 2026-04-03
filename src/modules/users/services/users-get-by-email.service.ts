@@ -14,6 +14,13 @@ export class UsersGetByEmailService {
     this._logger.setContext(UsersGetByEmailService.name);
   }
 
+  /**
+   * Retrieves a user by email address.
+   *
+   * @param {string} email User email.
+   * @returns {Promise<UserEntity>} Found user entity.
+   * @throws {NotFoundException} When the user does not exist.
+   */
   async getUserByEmail(email: string): Promise<UserEntity> {
     let user: UserEntity | null;
     try {

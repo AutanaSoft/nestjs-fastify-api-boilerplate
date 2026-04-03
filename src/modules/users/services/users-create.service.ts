@@ -19,6 +19,15 @@ export class UsersCreateService {
     this._logger.setContext(UsersCreateService.name);
   }
 
+  /**
+   * Creates a new user from validated input data.
+   *
+   * The service hashes the incoming password before persistence and emits
+   * `USER.CREATED` once the operation succeeds.
+   *
+   * @param {CreateUserInput} payload Input data to create a user.
+   * @returns {Promise<UserEntity>} Persisted user entity.
+   */
   async createUser(payload: CreateUserInput): Promise<UserEntity> {
     const passwordHash = await this._passwordHashService.hashPassword(payload.password);
 

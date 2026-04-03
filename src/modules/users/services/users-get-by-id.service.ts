@@ -14,6 +14,13 @@ export class UsersGetByIdService {
     this._logger.setContext(UsersGetByIdService.name);
   }
 
+  /**
+   * Retrieves a user by identifier.
+   *
+   * @param {string} id User identifier.
+   * @returns {Promise<UserEntity>} Found user entity.
+   * @throws {NotFoundException} When the user does not exist.
+   */
   async getUserById(id: string): Promise<UserEntity> {
     let user: UserEntity | null;
     try {

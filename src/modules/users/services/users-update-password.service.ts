@@ -18,6 +18,16 @@ export class UsersUpdatePasswordService {
     this._logger.setContext(UsersUpdatePasswordService.name);
   }
 
+  /**
+   * Updates a user's password.
+   *
+   * The service verifies the current password before hashing and storing
+   * the new password, then emits `USER.UPDATED_PASSWORD`.
+   *
+   * @param {string} id User identifier.
+   * @param {UpdatePasswordInput} payload Password update payload.
+   * @returns {Promise<void>} Resolves when password update completes.
+   */
   async updatePassword(id: string, payload: UpdatePasswordInput): Promise<void> {
     let user: UserEntity | null;
     try {
