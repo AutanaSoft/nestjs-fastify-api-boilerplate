@@ -2,13 +2,14 @@ import { Inject, Injectable, InternalServerErrorException } from '@nestjs/common
 import { PinoLogger } from 'nestjs-pino';
 import React from 'react';
 import { EMAIL_SENDER } from '../../constants/email.constants';
-import type { EmailInput, EmailSender } from '../../interfaces';
+import type { EmailRecipient, EmailSender } from '../../interfaces';
 import { EmailTemplateProvider } from '../../providers/email-template.provider';
 import { EmailRecipientSchema } from '../../schemas';
 import EmailPasswordChangedTemplate from '../../templates/auth/EmailPasswordChangedTemplate';
 
 /**
- * Domain service responsible for password changed notification emails.
+ * Domain service responsible for password change notification emails.
+ * It validates the recipient payload, renders the notification template, and dispatches the email.
  */
 @Injectable()
 export class EmailPasswordChangedService {
@@ -21,31 +22,31 @@ export class EmailPasswordChangedService {
   }
 
   /**
-   * Sends a password changed notification email.
+   * Sends a password changed notification email to the provided recipient.
    *
-   * @param {EmailInput} params Recipient payload.
+   * @param {EmailRecipient} params Recipient payload for the notification email.
    * @returns {Promise<void>} Resolves when the email has been sent.
    */
-  async sendPasswordChangedEmail(params: EmailInput): Promise<void> {
+  async sendPasswordChangedEmail(params: EmailRecipient): Promise<void> {
     try {
-      // 1. Validate input (Zod)
+      // Validate the external payload before building the notification content.
       const payload = EmailRecipientSchema.parse(params);
 
-      // 2. Build template data
       const dateOptions: Intl.DateTimeFormatOptions = {
         dateStyle: 'long',
         timeStyle: 'medium',
       };
+      // Keep the display timestamp localized for the notification body.
       const changedAt = new Date().toLocaleString('es-ES', dateOptions);
 
-      // 3. Render email template
+      // Render the email body from the React template.
       const element = React.createElement(EmailPasswordChangedTemplate, {
         name: payload.name,
         changedAt,
       });
       const html = await this._templateProvider.render(element);
 
-      // 4. Dispatch email
+      // Dispatch the notification through the configured email sender.
       await this._emailSender.send({
         to: payload.to,
         subject: 'Your password was changed successfully',

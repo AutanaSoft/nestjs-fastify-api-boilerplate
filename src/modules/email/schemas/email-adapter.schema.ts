@@ -1,22 +1,19 @@
 import { z } from 'zod';
 
 /**
- * Validation schema for adapter-level email payloads.
+ * Schema that validates the normalized payload consumed by delivery adapters.
  */
 export const EmailAdapterSchema = z.object({
   /**
    * Recipient email address.
-   * @example 'test@example.com'
    */
   to: z.email(),
   /**
-   * Email subject.
-   * @example 'Email verification'
+   * Email subject line.
    */
   subject: z.string(),
   /**
-   * Email HTML content.
-   * @example '<h1>Email verification</h1>'
+   * Rendered HTML content for the email body.
    */
   html: z.string(),
 });

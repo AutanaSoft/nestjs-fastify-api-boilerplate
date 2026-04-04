@@ -2,14 +2,14 @@ import { Inject, Injectable, InternalServerErrorException } from '@nestjs/common
 import { PinoLogger } from 'nestjs-pino';
 import React from 'react';
 import { EMAIL_SENDER } from '../../constants/email.constants';
-import type { EmailInput, EmailSender } from '../../interfaces';
+import type { EmailRecipient, EmailSender } from '../../interfaces';
 import { EmailTemplateProvider } from '../../providers/email-template.provider';
 import { EmailRecipientSchema } from '../../schemas';
 import EmailWelcomeTemplate from '../../templates/auth/EmailWelcomeTemplate';
 
 /**
  * Domain service responsible for welcome email business logic.
- * Follows the flow: Event/Use-case -> Service -> Adapter/Provider.
+ * It validates the recipient payload, renders the template, and dispatches the message.
  */
 @Injectable()
 export class EmailWelcomeService {
@@ -22,26 +22,24 @@ export class EmailWelcomeService {
   }
 
   /**
-   * Orchestrates the full welcome email workflow.
-   * Single responsibility: define what to send and to whom, delegating delivery details.
+   * Sends a welcome email to the provided recipient.
    *
-   * @param {EmailInput} params Welcome email payload.
+   * @param {EmailRecipient} params Welcome email payload.
    * @returns {Promise<void>} Resolves when the email has been sent.
    */
-  async sendWelcomeEmail(params: EmailInput): Promise<void> {
+  async sendWelcomeEmail(params: EmailRecipient): Promise<void> {
     try {
-      // 1. Validate input (Zod)
+      // Validate the external payload before rendering the template.
       const payload = EmailRecipientSchema.parse(params);
 
-      // 2. Prepare UI content
+      // Render the email body from the React template.
       const element = React.createElement(EmailWelcomeTemplate, {
         name: payload.name,
       });
 
-      // Delegate template rendering to the provider
       const html = await this._templateProvider.render(element);
 
-      // 3. Dispatch through infrastructure sender
+      // Dispatch the message through the configured email sender.
       await this._emailSender.send({
         to: payload.to,
         subject: 'Welcome to our platform!',
