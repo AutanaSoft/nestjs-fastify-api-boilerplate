@@ -7,7 +7,7 @@ import { EMAIL_SENDER } from '../../constants/email.constants';
 import { EmailAuthPath } from '../../enums/email-auth-path.enum';
 import type { EmailSender, EmailTokenInput } from '../../interfaces';
 import { EmailTemplateProvider } from '../../providers/email-template.provider';
-import { EmailTokenInputSchema } from '../../schemas';
+import { EmailRecipientTokenSchema } from '../../schemas';
 import EmailVerifyTemplate from '../../templates/auth/EmailVerifyTemplate';
 
 /**
@@ -34,7 +34,7 @@ export class EmailVerifyService {
   async sendVerifyEmail(params: EmailTokenInput): Promise<void> {
     try {
       // 1. Validate input (Zod)
-      const payload = EmailTokenInputSchema.parse(params);
+      const payload = EmailRecipientTokenSchema.parse(params);
 
       // 2. Build CTA URL from externally issued JWT token
       const frontendUrl = this._config.APP_FRONTEND_URL;

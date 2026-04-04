@@ -4,7 +4,7 @@ import React from 'react';
 import { EMAIL_SENDER } from '../../constants/email.constants';
 import type { EmailInput, EmailSender } from '../../interfaces';
 import { EmailTemplateProvider } from '../../providers/email-template.provider';
-import { EmailInputSchema } from '../../schemas';
+import { EmailRecipientSchema } from '../../schemas';
 import EmailWelcomeTemplate from '../../templates/auth/EmailWelcomeTemplate';
 
 /**
@@ -31,7 +31,7 @@ export class EmailWelcomeService {
   async sendWelcomeEmail(params: EmailInput): Promise<void> {
     try {
       // 1. Validate input (Zod)
-      const payload = EmailInputSchema.parse(params);
+      const payload = EmailRecipientSchema.parse(params);
 
       // 2. Prepare UI content
       const element = React.createElement(EmailWelcomeTemplate, {

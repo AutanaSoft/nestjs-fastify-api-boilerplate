@@ -52,7 +52,7 @@ describe('EmailVerifyService', () => {
   describe('sendVerifyEmail', () => {
     const mockInput = {
       to: 'test@example.com',
-      name: 'Test User',
+      name: 'test-user',
       token: 'a.b.c',
     };
 
@@ -68,7 +68,7 @@ describe('EmailVerifyService', () => {
       expect(emailSender.send).toHaveBeenCalledWith(
         expect.objectContaining({
           to: mockInput.to,
-          subject: 'Confirm your email address - AutanaSoft',
+          subject: 'Confirm your email address',
         }),
       );
     });
@@ -76,7 +76,7 @@ describe('EmailVerifyService', () => {
     it('should throw InternalServerErrorException when jwtToken is missing', async () => {
       const inputWithoutToken = {
         to: 'test@example.com',
-        name: 'Test User',
+        name: 'test-user',
       };
 
       await expect(

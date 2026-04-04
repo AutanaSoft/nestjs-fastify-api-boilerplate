@@ -4,7 +4,7 @@ import React from 'react';
 import { EMAIL_SENDER } from '../../constants/email.constants';
 import type { EmailInput, EmailSender } from '../../interfaces';
 import { EmailTemplateProvider } from '../../providers/email-template.provider';
-import { EmailInputSchema } from '../../schemas';
+import { EmailRecipientSchema } from '../../schemas';
 import EmailPasswordChangedTemplate from '../../templates/auth/EmailPasswordChangedTemplate';
 
 /**
@@ -29,7 +29,7 @@ export class EmailPasswordChangedService {
   async sendPasswordChangedEmail(params: EmailInput): Promise<void> {
     try {
       // 1. Validate input (Zod)
-      const payload = EmailInputSchema.parse(params);
+      const payload = EmailRecipientSchema.parse(params);
 
       // 2. Build template data
       const dateOptions: Intl.DateTimeFormatOptions = {

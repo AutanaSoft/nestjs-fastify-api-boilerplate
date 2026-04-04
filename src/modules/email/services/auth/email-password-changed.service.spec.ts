@@ -46,7 +46,7 @@ describe('EmailPasswordChangedService', () => {
   describe('sendPasswordChangedEmail', () => {
     const mockInput = {
       to: 'test@example.com',
-      name: 'Test User',
+      name: 'test-user',
     };
 
     it('should send the password changed notification', async () => {

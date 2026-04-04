@@ -52,7 +52,7 @@ describe('EmailForgotPasswordService', () => {
   describe('sendForgotPasswordEmail', () => {
     const mockInput = {
       to: 'test@example.com',
-      name: 'Test User',
+      name: 'test-user',
       token: 'header.payload.signature',
     };
 
@@ -68,7 +68,7 @@ describe('EmailForgotPasswordService', () => {
       expect(emailSender.send).toHaveBeenCalledWith(
         expect.objectContaining({
           to: mockInput.to,
-          subject: 'Reset your password - AutanaSoft',
+          subject: 'Reset your password',
         }),
       );
     });
@@ -76,7 +76,7 @@ describe('EmailForgotPasswordService', () => {
     it('should throw InternalServerErrorException when jwtToken is missing', async () => {
       const inputWithoutToken = {
         to: 'test@example.com',
-        name: 'Test User',
+        name: 'test-user',
       };
 
       await expect(

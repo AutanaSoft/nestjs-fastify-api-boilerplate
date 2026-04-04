@@ -69,7 +69,7 @@ describe('SmtpEmailAdapter', () => {
     });
 
     expect(sendMailMock).toHaveBeenCalledWith({
-      from: 'AutanaSoft<no-reply@example.com>',
+      from: 'no-reply@example.com',
       to: emailPayload.to,
       subject: emailPayload.subject,
       html: emailPayload.html,
