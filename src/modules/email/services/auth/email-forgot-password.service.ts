@@ -5,13 +5,14 @@ import { PinoLogger } from 'nestjs-pino';
 import React from 'react';
 import { EMAIL_SENDER } from '../../constants/email.constants';
 import { EmailAuthPath } from '../../enums/email-auth-path.enum';
-import type { EmailSender, EmailTokenInput } from '../../interfaces';
+import type { EmailRecipientToken, EmailSender } from '../../interfaces';
 import { EmailTemplateProvider } from '../../providers/email-template.provider';
-import { EmailTokenInputSchema } from '../../schemas';
+import { EmailRecipientTokenSchema } from '../../schemas';
 import EmailForgotPasswordTemplate from '../../templates/auth/EmailForgotPasswordTemplate';
 
 /**
  * Domain service responsible for password recovery email business logic.
+ * It validates the recipient payload, builds the reset URL, renders the template, and dispatches the message.
  */
 @Injectable()
 export class EmailForgotPasswordService {
@@ -26,32 +27,32 @@ export class EmailForgotPasswordService {
   }
 
   /**
-   * Sends a password recovery email.
+   * Sends a password recovery email to the provided recipient.
    *
-   * @param {EmailTokenInput} params Recipient payload with JWT token.
+   * @param {EmailRecipientToken} params Recipient payload that includes the reset token.
    * @returns {Promise<void>} Resolves when the email has been sent.
    */
-  async sendForgotPasswordEmail(params: EmailTokenInput): Promise<void> {
+  async sendForgotPasswordEmail(params: EmailRecipientToken): Promise<void> {
     try {
-      // 1. Validate input (Zod)
-      const payload = EmailTokenInputSchema.parse(params);
+      // Validate and normalize the external payload before using the token in the URL.
+      const payload = EmailRecipientTokenSchema.parse(params);
 
-      // 2. Build CTA URL from externally issued JWT token
       const frontendUrl = this._config.APP_FRONTEND_URL;
+      // Encode the token because it is propagated through a query string parameter.
       const token = encodeURIComponent(payload.token);
       const ctaUrl = `${frontendUrl}${EmailAuthPath.RESET_PASSWORD}?token=${token}`;
 
-      // 3. Render email template
+      // Render the email body from the React template.
       const element = React.createElement(EmailForgotPasswordTemplate, {
         name: payload.name,
         href: ctaUrl,
       });
       const html = await this._templateProvider.render(element);
 
-      // 4. Dispatch email
+      // Send the final message through the configured adapter.
       await this._emailSender.send({
         to: payload.to,
-        subject: 'Reset your password - AutanaSoft',
+        subject: 'Reset your password',
         html,
       });
 

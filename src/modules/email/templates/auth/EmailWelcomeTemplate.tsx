@@ -30,7 +30,6 @@ export const EmailWelcomeTemplate = ({ name }: EmailWelcomeProps): React.ReactNo
     {/* Body */}
     <Preview>{previewText}</Preview>
     <Section>
-      <Text className="text-sm leading-[24px]">Hi {name},</Text>
       <Text className="text-sm leading-[24px]">
         Welcome. Your account has been created successfully, and you can now start using the
         platform.

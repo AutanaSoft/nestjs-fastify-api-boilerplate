@@ -40,7 +40,7 @@ export class ResendEmailAdapter {
 
       const resend = this._getClient(config.apiKey);
       const response = (await resend.emails.send({
-        from: `AutanaSoft<${defaultFrom}>`,
+        from: defaultFrom,
         to,
         subject,
         html,

@@ -46,7 +46,7 @@ describe('EmailWelcomeService', () => {
   describe('sendWelcomeEmail', () => {
     const mockInput = {
       to: 'test@example.com',
-      name: 'Test User',
+      name: 'test-user',
     };
 
     it('should send the welcome email', async () => {
@@ -56,7 +56,7 @@ describe('EmailWelcomeService', () => {
       expect(emailSender.send).toHaveBeenCalledWith(
         expect.objectContaining({
           to: mockInput.to,
-          subject: '¡Bienvenido a AutanaSoft!',
+          subject: 'Welcome to our platform!',
         }),
       );
     });

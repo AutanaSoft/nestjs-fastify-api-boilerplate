@@ -50,7 +50,7 @@ describe('ResendEmailAdapter', () => {
 
     expect(Resend).toHaveBeenCalledWith('resend-key');
     expect(sendMock).toHaveBeenCalledWith({
-      from: 'AutanaSoft<no-reply@example.com>',
+      from: 'no-reply@example.com',
       to: emailPayload.to,
       subject: emailPayload.subject,
       html: emailPayload.html,

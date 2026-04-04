@@ -1,2 +1,2 @@
 export * from './email-adapter.schema';
-export * from './email-dto.schemas';
+export * from './email-recipient.schema';
