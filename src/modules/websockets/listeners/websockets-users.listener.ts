@@ -23,6 +23,7 @@ export class WebsocketsUsersListener {
    */
   @OnEvent(EVENT_NAMES.USER.UPDATED, { async: true })
   @OnEvent(EVENT_NAMES.AUTH.PASSWORD_RESET, { async: true })
+  @OnEvent(EVENT_NAMES.USER.UPDATED_PASSWORD, { async: true })
   async handleUserUpdated(event: UserUpdatedEvent | AuthPasswordResetEvent): Promise<void> {
     await this._websocketsMeService.processUserUpdatedEvent(event);
   }

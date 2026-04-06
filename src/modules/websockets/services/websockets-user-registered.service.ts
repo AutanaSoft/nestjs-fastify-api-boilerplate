@@ -1,7 +1,7 @@
 import { AuthUserRegisteredEvent } from '@/modules/auth/events';
 import { AuthWithTokenEventSchema } from '@/modules/auth/schemas';
 import { UsersGetByEmailService } from '@/modules/users/services';
-import { EVENT_NAMES } from '@/shared/constants/event-names.constants';
+import { EVENT_NAMES } from '@shared/constants/event-names.constants';
 import { Injectable } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
 import type { Socket } from 'socket.io';

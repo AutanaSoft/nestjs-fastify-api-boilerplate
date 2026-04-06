@@ -1,4 +1,4 @@
-import { UserUpdatedEvent } from '@/modules/users/events';
+import { UserPasswordUpdatedEvent, UserUpdatedEvent } from '@/modules/users/events';
 import { UsersGetByIdService } from '@/modules/users/services';
 import type { CurrentUser } from '@/modules/auth/interfaces';
 import { Test, type TestingModule } from '@nestjs/testing';
@@ -85,6 +85,23 @@ describe('WebsocketsMeService', () => {
 
     await service.processUserUpdatedEvent(
       new UserUpdatedEvent({
+        id: baseUser.id,
+        email: baseUser.email,
+        userName: baseUser.userName,
+      }),
+    );
+
+    expect(websocketsEmitterService.emitMeUpdated).toHaveBeenCalledWith(
+      baseUser.id,
+      expect.objectContaining({ id: baseUser.id }),
+    );
+  });
+
+  it('should process USER.UPDATED_PASSWORD event and emit me update', async () => {
+    usersGetByIdService.getUserById.mockResolvedValue(baseUser);
+
+    await service.processUserUpdatedEvent(
+      new UserPasswordUpdatedEvent({
         id: baseUser.id,
         email: baseUser.email,
         userName: baseUser.userName,
