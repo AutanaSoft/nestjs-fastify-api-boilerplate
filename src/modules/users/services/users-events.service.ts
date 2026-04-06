@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { EVENT_NAMES } from '@shared/constants/event-names.constants';
 import { PinoLogger } from 'nestjs-pino';
-import { UserCreatedEvent, UserPasswordUpdatedEvent } from '../events';
+import { UserCreatedEvent, UserPasswordUpdatedEvent, UserUpdatedEvent } from '../events';
 import type { UserEntity } from '../interfaces';
 import { UserEventPayloadSchema } from '../schemas';
 
@@ -31,6 +31,18 @@ export class UsersEventsService {
 
     this._eventEmitter.emit(EVENT_NAMES.USER.CREATED, new UserCreatedEvent(payload));
     this._logger.debug({ userId: payload.id }, 'Emitted USER.CREATED');
+  }
+
+  /**
+   * Emits a domain event signaling that a user profile has been updated.
+   *
+   * @param {UserEntity} user The updated user payload.
+   */
+  emitUserUpdated(user: UserEntity): void {
+    const payload = UserEventPayloadSchema.parse(user);
+
+    this._eventEmitter.emit(EVENT_NAMES.USER.UPDATED, new UserUpdatedEvent(payload));
+    this._logger.debug({ userId: payload.id }, 'Emitted USER.UPDATED');
   }
 
   /**

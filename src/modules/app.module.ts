@@ -19,6 +19,7 @@ import { EmailModule } from './email/email.module';
 import { HealthModule } from './health/health.module';
 import { SettingsModule } from './settings/settings.module';
 import { UsersModule } from './users/users.module';
+import { WebsocketsModule } from './websockets/websockets.module';
 
 /**
  * Módulo principal de la aplicación.
@@ -91,6 +92,7 @@ import { UsersModule } from './users/users.module';
     UsersModule,
     SettingsModule,
     EmailModule,
+    WebsocketsModule,
   ],
   controllers: [],
   providers: [

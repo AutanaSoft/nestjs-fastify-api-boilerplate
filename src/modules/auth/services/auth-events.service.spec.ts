@@ -15,6 +15,7 @@ describe('AuthEventsService', () => {
   let eventEmitter: jest.Mocked<Pick<EventEmitter2, 'emit'>>;
 
   const emailPayload = {
+    id: '550e8400-e29b-41d4-a716-446655440120',
     email: 'events-user@example.com',
     userName: 'events-user',
   };
@@ -87,6 +88,7 @@ describe('AuthEventsService', () => {
   it('should throw ZodError when email payload is invalid', () => {
     expect(() =>
       service.emitEmailVerified({
+        id: emailPayload.id,
         email: 'invalid-email',
         userName: emailPayload.userName,
       }),
@@ -96,6 +98,7 @@ describe('AuthEventsService', () => {
   it('should throw ZodError when email token payload is invalid', () => {
     expect(() =>
       service.emitUserRegistered({
+        id: emailPayload.id,
         email: emailPayload.email,
         userName: emailPayload.userName,
         token: '',

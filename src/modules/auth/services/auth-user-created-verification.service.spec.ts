@@ -92,6 +92,7 @@ describe('AuthUserCreatedVerificationService', () => {
       purpose: TokenType.VERIFY_EMAIL,
     });
     expect(authEventsService.emitUserRegistered).toHaveBeenCalledWith({
+      id: user.id,
       email: user.email,
       userName: user.userName,
       token: 'verify-token',

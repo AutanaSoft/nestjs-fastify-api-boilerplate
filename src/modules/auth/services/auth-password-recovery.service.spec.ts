@@ -116,6 +116,7 @@ describe('AuthPasswordRecoveryService', () => {
         purpose: TokenType.RESET_PASSWORD,
       });
       expect(authEventsService.emitPasswordResetRequested).toHaveBeenCalledWith({
+        id: user.id,
         email: user.email,
         userName: user.userName,
         token: 'reset-token',
@@ -223,6 +224,7 @@ describe('AuthPasswordRecoveryService', () => {
         'new-hashed-password',
       );
       expect(authEventsService.emitPasswordReset).toHaveBeenCalledWith({
+        id: user.id,
         email: user.email,
         userName: user.userName,
       });

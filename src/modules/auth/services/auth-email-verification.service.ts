@@ -14,11 +14,7 @@ import {
 } from '../errors';
 import type { RequestEmailVerificationInput, VerifyEmailInput } from '../interfaces';
 import { AuthRepository } from '../repositories';
-import {
-  EmailPayloadSchema,
-  EmailTokenPayloadSchema,
-  SignCustomTokenInputSchema,
-} from '../schemas';
+import { AuthEventSchema, AuthWithTokenEventSchema, SignCustomTokenInputSchema } from '../schemas';
 import { AuthEventsService } from './auth-events.service';
 import { JwtTokenService } from './jwt-token.service';
 
@@ -63,7 +59,7 @@ export class AuthEmailVerificationService {
 
       const verifyToken = await this._jwtTokenService.signCustomToken(customPayload);
 
-      const emailPayload = EmailTokenPayloadSchema.parse({
+      const emailPayload = AuthWithTokenEventSchema.parse({
         ...user,
         token: verifyToken,
       });
@@ -112,7 +108,7 @@ export class AuthEmailVerificationService {
 
       const verifiedUser = await this._authRepository.verifyUserEmailById(user.id, new Date());
 
-      const emailPayload = EmailPayloadSchema.parse(verifiedUser);
+      const emailPayload = AuthEventSchema.parse(verifiedUser);
 
       this._authEventsService.emitEmailVerified(emailPayload);
     } catch (error: unknown) {

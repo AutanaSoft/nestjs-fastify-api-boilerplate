@@ -12,7 +12,7 @@ import {
 } from '../errors';
 import {
   CreateAuthUserDataSchema,
-  EmailTokenPayloadSchema,
+  AuthWithTokenEventSchema,
   SignCustomTokenInputSchema,
 } from '../schemas';
 import { AuthEventsService } from './auth-events.service';
@@ -94,7 +94,7 @@ export class AuthSignUpService {
 
     const verifyToken = await this._jwtTokenService.signCustomToken(customPayload);
 
-    const emailPayload = EmailTokenPayloadSchema.parse({
+    const emailPayload = AuthWithTokenEventSchema.parse({
       ...createdUser,
       token: verifyToken,
     });

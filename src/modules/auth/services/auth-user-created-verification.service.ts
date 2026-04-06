@@ -4,7 +4,7 @@ import { EVENT_NAMES } from '@shared/constants/event-names.constants';
 import { PinoLogger } from 'nestjs-pino';
 import { TokenType } from '../enum';
 import { AuthRepository } from '../repositories';
-import { EmailTokenPayloadSchema, SignCustomTokenInputSchema } from '../schemas';
+import { AuthWithTokenEventSchema, SignCustomTokenInputSchema } from '../schemas';
 import { AuthEventsService } from './auth-events.service';
 import { JwtTokenService } from './jwt-token.service';
 
@@ -56,7 +56,7 @@ export class AuthUserCreatedVerificationService {
       });
       const verifyToken = await this._jwtTokenService.signCustomToken(customTokenInput);
 
-      const emailPayload = EmailTokenPayloadSchema.parse({
+      const emailPayload = AuthWithTokenEventSchema.parse({
         ...user,
         token: verifyToken,
       });
