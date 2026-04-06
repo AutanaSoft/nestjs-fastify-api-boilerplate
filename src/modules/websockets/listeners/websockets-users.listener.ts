@@ -1,5 +1,5 @@
 import { AuthPasswordResetEvent, AuthUserRegisteredEvent } from '@/modules/auth/events';
-import { UserUpdatedEvent } from '@/modules/users/events';
+import { UserPasswordUpdatedEvent, UserUpdatedEvent } from '@/modules/users/events';
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { EVENT_NAMES } from '@shared/constants/event-names.constants';
@@ -24,7 +24,9 @@ export class WebsocketsUsersListener {
   @OnEvent(EVENT_NAMES.USER.UPDATED, { async: true })
   @OnEvent(EVENT_NAMES.AUTH.PASSWORD_RESET, { async: true })
   @OnEvent(EVENT_NAMES.USER.UPDATED_PASSWORD, { async: true })
-  async handleUserUpdated(event: UserUpdatedEvent | AuthPasswordResetEvent): Promise<void> {
+  async handleUserUpdated(
+    event: UserUpdatedEvent | UserPasswordUpdatedEvent | AuthPasswordResetEvent,
+  ): Promise<void> {
     await this._websocketsMeService.processUserUpdatedEvent(event);
   }
 
