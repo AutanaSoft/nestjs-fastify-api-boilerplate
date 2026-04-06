@@ -4,8 +4,8 @@ import {
   AuthPasswordResetRequestedEvent,
   AuthUserRegisteredEvent,
 } from '@modules/auth/events';
-import type { EmailPayload, EmailTokenPayload } from '@modules/auth/interfaces';
-import { EmailPayloadSchema, EmailTokenPayloadSchema } from '@modules/auth/schemas';
+import type { AuthEventPayload, AuthWithTokenEventPayload } from '@modules/auth/interfaces';
+import { AuthEventSchema, AuthWithTokenEventSchema } from '@modules/auth/schemas';
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { EVENT_NAMES } from '@shared/constants/event-names.constants';
@@ -128,10 +128,10 @@ export class EmailEventsListener {
    *
    * @param {unknown} payload Raw event payload.
    * @param {string} eventName Domain event name.
-   * @returns {EmailPayload | null} Parsed payload when valid, otherwise `null`.
+   * @returns {AuthEventPayload | null} Parsed payload when valid, otherwise `null`.
    */
-  private _parseEmailPayload(payload: unknown, eventName: string): EmailPayload | null {
-    const parsedPayload = EmailPayloadSchema.safeParse(payload);
+  private _parseEmailPayload(payload: unknown, eventName: string): AuthEventPayload | null {
+    const parsedPayload = AuthEventSchema.safeParse(payload);
 
     if (!parsedPayload.success) {
       this._logger.error(
@@ -149,10 +149,13 @@ export class EmailEventsListener {
    *
    * @param {unknown} payload Raw event payload.
    * @param {string} eventName Domain event name.
-   * @returns {EmailTokenPayload | null} Parsed payload when valid, otherwise `null`.
+   * @returns {AuthWithTokenEventPayload | null} Parsed payload when valid, otherwise `null`.
    */
-  private _parseEmailTokenPayload(payload: unknown, eventName: string): EmailTokenPayload | null {
-    const parsedPayload = EmailTokenPayloadSchema.safeParse(payload);
+  private _parseEmailTokenPayload(
+    payload: unknown,
+    eventName: string,
+  ): AuthWithTokenEventPayload | null {
+    const parsedPayload = AuthWithTokenEventSchema.safeParse(payload);
 
     if (!parsedPayload.success) {
       this._logger.error(

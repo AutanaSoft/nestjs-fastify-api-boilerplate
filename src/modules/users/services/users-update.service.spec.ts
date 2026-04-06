@@ -3,11 +3,13 @@ import { UserRoles, UserStatus } from '../constants';
 import { Test, type TestingModule } from '@nestjs/testing';
 import { PinoLogger } from 'nestjs-pino';
 import { UsersRepository } from '../repositories';
+import { UsersEventsService } from './users-events.service';
 import { UsersUpdateService } from './users-update.service';
 
 describe('UsersUpdateService', () => {
   let service: UsersUpdateService;
   let usersRepository: jest.Mocked<UsersRepository>;
+  let usersEventsService: jest.Mocked<Pick<UsersEventsService, 'emitUserUpdated'>>;
   let logger: jest.Mocked<Pick<PinoLogger, 'setContext' | 'error'>>;
 
   const baseUser = {
@@ -37,10 +39,15 @@ describe('UsersUpdateService', () => {
       error: jest.fn(),
     };
 
+    usersEventsService = {
+      emitUserUpdated: jest.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UsersUpdateService,
         { provide: UsersRepository, useValue: usersRepository },
+        { provide: UsersEventsService, useValue: usersEventsService },
         { provide: PinoLogger, useValue: logger },
       ],
     }).compile();
@@ -60,6 +67,7 @@ describe('UsersUpdateService', () => {
         userName: 'updated-name',
       } as never),
     ).resolves.toEqual(baseUser);
+    expect(usersEventsService.emitUserUpdated).toHaveBeenCalledWith(baseUser);
   });
 
   it('should throw InternalServerErrorException when update fails', async () => {

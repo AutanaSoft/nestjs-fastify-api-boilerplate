@@ -6,12 +6,15 @@ import { Inject } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
 import { TokenType } from '../enum';
 import type {
+  CurrentUser,
   JwtCustomPayload,
   SignAccessTokenInput,
   SignCustomTokenInput,
   SignedAccessToken,
 } from '../interfaces';
+import { AuthRepository } from '../repositories';
 import { JwtCustomPayloadSchema } from '../schemas';
+import { JwtAccessPayloadSchema } from '../schemas/jwt.schema';
 
 /**
  * JWT service for access and custom-purpose tokens.
@@ -22,6 +25,7 @@ export class JwtTokenService {
     @Inject(authConfig.KEY)
     private readonly _config: ConfigType<typeof authConfig>,
     private readonly _jwtService: JwtService,
+    private readonly _authRepository: AuthRepository,
     private readonly _logger: PinoLogger,
   ) {
     this._logger.setContext(JwtTokenService.name);
@@ -101,6 +105,62 @@ export class JwtTokenService {
       this._logger.warn({ error }, 'Custom token verification failed');
       throw new UnauthorizedException('Invalid token payload');
     }
+  }
+
+  /**
+   * Verifies a signed access token and resolves the authenticated user context.
+   *
+   * @param token Signed access token.
+   * @returns Validated current user context bound to a live session.
+   * @throws {UnauthorizedException} When token verification fails or the payload/session is invalid.
+   */
+  async verifyAccessToken(token: string): Promise<CurrentUser> {
+    try {
+      const decodedPayload: unknown = await this._jwtService.verifyAsync(token, {
+        secret: this._config.AUTH_JWT_SECRET,
+        issuer: this._config.AUTH_JWT_ISSUER,
+        audience: this._config.AUTH_JWT_AUDIENCE,
+      });
+
+      return await this.validateAccessPayload(decodedPayload);
+    } catch (error: unknown) {
+      this._logger.warn({ error }, 'Access token verification failed');
+      throw new UnauthorizedException('Invalid access token');
+    }
+  }
+
+  /**
+   * Validates decoded access token claims and resolves the authenticated user context.
+   *
+   * @param payload Decoded token payload from a trusted JWT verifier.
+   * @returns Validated current user context bound to a live session.
+   * @throws {UnauthorizedException} When claims or session are invalid.
+   */
+  async validateAccessPayload(payload: unknown): Promise<CurrentUser> {
+    const parsedPayload = JwtAccessPayloadSchema.safeParse(payload);
+
+    if (!parsedPayload.success) {
+      throw new UnauthorizedException('Invalid access token payload');
+    }
+
+    if (parsedPayload.data.type !== TokenType.ACCESS) {
+      throw new UnauthorizedException('Invalid access token');
+    }
+
+    const session = await this._authRepository.findSessionById(parsedPayload.data.sessionId);
+
+    if (!session || session.revokedAt) {
+      throw new UnauthorizedException('Session is no longer valid');
+    }
+
+    return {
+      id: parsedPayload.data.sub,
+      email: parsedPayload.data.email,
+      userName: parsedPayload.data.userName,
+      role: parsedPayload.data.role,
+      status: parsedPayload.data.status,
+      sessionId: parsedPayload.data.sessionId,
+    };
   }
 
   private resolveCustomTokenTtl(purpose: SignCustomTokenInput['purpose']): string {

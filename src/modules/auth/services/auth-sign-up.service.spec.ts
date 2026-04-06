@@ -125,6 +125,7 @@ describe('AuthSignUpService', () => {
       purpose: TokenType.VERIFY_EMAIL,
     });
     expect(authEventsService.emitUserRegistered).toHaveBeenCalledWith({
+      id: createdUser.id,
       email: createdUser.email,
       userName: createdUser.userName,
       token: 'verify-token',

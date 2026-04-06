@@ -1,5 +1,5 @@
 import type { z } from 'zod';
-import type { EmailPayloadSchema, EmailTokenPayloadSchema } from '../schemas';
+import type { AuthEventSchema, AuthWithTokenEventSchema } from '../schemas';
 
-export type EmailPayload = z.infer<typeof EmailPayloadSchema>;
-export type EmailTokenPayload = z.infer<typeof EmailTokenPayloadSchema>;
+export type AuthEventPayload = z.infer<typeof AuthEventSchema>;
+export type AuthWithTokenEventPayload = z.infer<typeof AuthWithTokenEventSchema>;

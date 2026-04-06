@@ -127,6 +127,7 @@ describe('AuthEmailVerificationService', () => {
       });
 
       expect(authEventsService.emitUserRegistered).toHaveBeenCalledWith({
+        id: user.id,
         email: user.email,
         userName: user.userName,
         token: 'verify-token',
@@ -208,6 +209,7 @@ describe('AuthEmailVerificationService', () => {
 
       expect(authRepository.verifyUserEmailById).toHaveBeenCalledWith(user.id, expect.any(Date));
       expect(authEventsService.emitEmailVerified).toHaveBeenCalledWith({
+        id: user.id,
         email: user.email,
         userName: user.userName,
       });

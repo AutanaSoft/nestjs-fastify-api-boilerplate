@@ -15,11 +15,7 @@ import {
 } from '../errors';
 import type { ForgotPasswordInput, ResetPasswordInput } from '../interfaces';
 import { AuthRepository } from '../repositories';
-import {
-  EmailPayloadSchema,
-  EmailTokenPayloadSchema,
-  SignCustomTokenInputSchema,
-} from '../schemas';
+import { AuthEventSchema, AuthWithTokenEventSchema, SignCustomTokenInputSchema } from '../schemas';
 import { AuthEventsService } from './auth-events.service';
 import { JwtTokenService } from './jwt-token.service';
 
@@ -64,7 +60,7 @@ export class AuthPasswordRecoveryService {
 
       const resetToken = await this._jwtTokenService.signCustomToken(customPayload);
 
-      const emailPayload = EmailTokenPayloadSchema.parse({
+      const emailPayload = AuthWithTokenEventSchema.parse({
         ...user,
         token: resetToken,
       });
@@ -114,7 +110,7 @@ export class AuthPasswordRecoveryService {
       const passwordHash = await this._passwordHashService.hashPassword(payload.newPassword);
       const updatedUser = await this._authRepository.updateUserPasswordById(user.id, passwordHash);
 
-      const emailPayload = EmailPayloadSchema.parse(updatedUser);
+      const emailPayload = AuthEventSchema.parse(updatedUser);
 
       this._authEventsService.emitPasswordReset(emailPayload);
     } catch (error: unknown) {

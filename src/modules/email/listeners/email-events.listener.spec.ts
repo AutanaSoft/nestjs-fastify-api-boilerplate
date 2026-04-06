@@ -65,6 +65,7 @@ describe('EmailEventsListener', () => {
   it('should process USER_REGISTERED event when payload is valid', async () => {
     await listener.handleUserRegistered(
       new AuthUserRegisteredEvent({
+        id: '550e8400-e29b-41d4-a716-446655440120',
         email: 'test@example.com',
         userName: 'test-user',
         token: 'jwt-token',
@@ -85,6 +86,7 @@ describe('EmailEventsListener', () => {
     await expect(
       listener.handleUserRegistered(
         new AuthUserRegisteredEvent({
+          id: '550e8400-e29b-41d4-a716-446655440120',
           email: 'test@example.com',
           userName: 'test-user',
           token: 'jwt-token',
@@ -116,6 +118,7 @@ describe('EmailEventsListener', () => {
   it('should process EMAIL_VERIFIED event when payload is valid', async () => {
     await listener.handleEmailVerified(
       new AuthEmailVerifiedEvent({
+        id: '550e8400-e29b-41d4-a716-446655440120',
         email: 'test@example.com',
         userName: 'test-user',
       }),

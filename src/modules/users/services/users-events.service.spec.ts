@@ -82,6 +82,22 @@ describe('UsersEventsService', () => {
     );
   });
 
+  it('should emit USER.UPDATED event', () => {
+    service.emitUserUpdated(baseUser as never);
+
+    expect(eventEmitter.emit).toHaveBeenCalledWith(
+      EVENT_NAMES.USER.UPDATED,
+      expect.objectContaining({
+        payload: {
+          id: baseUser.id,
+          email: baseUser.email,
+          userName: baseUser.userName,
+        },
+      }),
+    );
+    expect(logger.debug).toHaveBeenCalledWith({ userId: baseUser.id }, 'Emitted USER.UPDATED');
+  });
+
   it('should throw when user event payload is invalid', () => {
     expect(() =>
       service.emitUserCreated({

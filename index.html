@@ -1,0 +1,31 @@
+<html>
+  <head>
+    <script src="https://cdn.socket.io/4.8.3/socket.io.min.js"></script>
+    <script>
+      const token =
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxOTRmNzU3Ny0xMmY0LTRmZTQtOWU5NS1kYTMwZDIzMzQzNTAiLCJlbWFpbCI6InNwZWVkbGVvbkBnbWFpbC5jb20iLCJ1c2VyTmFtZSI6IlNwZWVkbGVvbiIsInJvbGUiOiJBRE1JTiIsInN0YXR1cyI6IlJFR0lTVEVSRUQiLCJzZXNzaW9uSWQiOiJkMDhkOGRjMC00ZDFkLTQ5OGEtOTAxMC1iOGI4ZTc2MTY3ZDMiLCJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNzc1NDY1MzgwLCJleHAiOjE3NzU0Njg5ODAsImF1ZCI6Im5lc3Rqcy1mYXN0aWZ5LWFwaS1ib2lsZXJwbGF0ZS1jbGllbnQiLCJpc3MiOiJuZXN0anMtZmFzdGlmeS1hcGktYm9pbGVycGxhdGUifQ.Acr3gienNwiIGD18bVAzUevVhD4jf3_aHe3BAJuKTPI';
+      const socket = io('http://localhost:4200/ws', {
+        auth: { token },
+        //transports: ['websocket'],
+      });
+
+      socket.on('connect', () => {
+        console.log('connected', socket.id);
+        socket.emit('ws.ping', { message: 'hello' });
+      });
+
+      socket.on('ws.pong', (payload) => console.log('ws.pong', payload));
+      socket.on('ws.error', (payload) => console.log('ws.error', payload));
+      socket.on('connect_error', (err) => console.log('connect_error', err.message, err.data));
+      socket.on('disconnect', (reason) => console.log('disconnect', reason));
+
+      socket.emit('me');
+      socket.on('me', (payload) => console.log('me', payload));
+
+      socket.emit('userRegistered');
+      socket.on('userRegistered', (payload) => console.log('userRegistered', payload));
+    </script>
+  </head>
+
+  <body></body>
+</html>

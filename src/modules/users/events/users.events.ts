@@ -8,6 +8,13 @@ export class UserCreatedEvent {
 }
 
 /**
+ * Event emitted when a user profile is updated.
+ */
+export class UserUpdatedEvent {
+  constructor(public readonly payload: UserEventPayload) {}
+}
+
+/**
  * Event emitted when a user password is updated.
  */
 export class UserPasswordUpdatedEvent {

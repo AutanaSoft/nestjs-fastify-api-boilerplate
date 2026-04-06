@@ -73,6 +73,7 @@ import { JwtStrategy } from './strategies';
     AuthEventsService,
     JwtTokenService,
     RefreshTokenService,
+    JwtStrategy,
     AuthRepository,
   ],
 })
